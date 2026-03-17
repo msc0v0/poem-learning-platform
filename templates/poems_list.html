@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>古诗选择 - 古诗教学平台</title>
+    <!-- 使用替代CDN -->
+<!--    <link href="https://unpkg.com/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">-->
+<!--    <link rel="stylesheet" href="https://cdnjs.loli.net/ajax/libs/font-awesome/6.0.0/css/all.min.css">-->
+    <link href="/static/css/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/all.min.css">
+    
+    <!-- 备用样式 -->
+    <style>
+        /*@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');*/
+         @import url('/static/webfonts/fa-solid-900.woff2');
+        
+        /* 智能备用样式系统 */
+        body:not(.tailwind-loaded) {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            margin: 0;
+            background-color: #f8fafc;
+        }
+        
+        /* 只在TailwindCSS未加载时生效的样式 */
+        body:not(.tailwind-loaded) .bg-white { background-color: #ffffff; }
+        body:not(.tailwind-loaded) .shadow-lg { box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
+        body:not(.tailwind-loaded) .rounded-xl { border-radius: 0.75rem; }
+        body:not(.tailwind-loaded) .rounded-lg { border-radius: 0.5rem; }
+        body:not(.tailwind-loaded) .p-6 { padding: 1.5rem; }
+        body:not(.tailwind-loaded) .p-4 { padding: 1rem; }
+        body:not(.tailwind-loaded) .px-4 { padding-left: 1rem; padding-right: 1rem; }
+        body:not(.tailwind-loaded) .py-4 { padding-top: 1rem; padding-bottom: 1rem; }
+        body:not(.tailwind-loaded) .py-8 { padding-top: 2rem; padding-bottom: 2rem; }
+        body:not(.tailwind-loaded) .mb-8 { margin-bottom: 2rem; }
+        body:not(.tailwind-loaded) .mb-6 { margin-bottom: 1.5rem; }
+        body:not(.tailwind-loaded) .mb-4 { margin-bottom: 1rem; }
+        body:not(.tailwind-loaded) .mr-2 { margin-right: 0.5rem; }
+        body:not(.tailwind-loaded) .flex { display: flex; }
+        body:not(.tailwind-loaded) .grid { display: grid; }
+        body:not(.tailwind-loaded) .items-center { align-items: center; }
+        body:not(.tailwind-loaded) .justify-between { justify-content: space-between; }
+        body:not(.tailwind-loaded) .text-center { text-align: center; }
+        body:not(.tailwind-loaded) .text-2xl { font-size: 1.5rem; }
+        body:not(.tailwind-loaded) .text-lg { font-size: 1.125rem; }
+        body:not(.tailwind-loaded) .text-sm { font-size: 0.875rem; }
+        body:not(.tailwind-loaded) .text-xs { font-size: 0.75rem; }
+        body:not(.tailwind-loaded) .font-bold { font-weight: 700; }
+        body:not(.tailwind-loaded) .font-medium { font-weight: 500; }
+        body:not(.tailwind-loaded) .text-gray-800 { color: #1f2937; }
+        body:not(.tailwind-loaded) .text-gray-700 { color: #374151; }
+        body:not(.tailwind-loaded) .text-gray-600 { color: #4b5563; }
+        body:not(.tailwind-loaded) .text-gray-500 { color: #6b7280; }
+        body:not(.tailwind-loaded) .text-blue-600 { color: #2563eb; }
+        body:not(.tailwind-loaded) .text-blue-800 { color: #1e40af; }
+        body:not(.tailwind-loaded) .text-white { color: #ffffff; }
+        body:not(.tailwind-loaded) .bg-blue-500 { background-color: #3b82f6; }
+        body:not(.tailwind-loaded) .bg-red-500 { background-color: #ef4444; }
+        body:not(.tailwind-loaded) .hover\\:bg-blue-600:hover { background-color: #2563eb; }
+        body:not(.tailwind-loaded) .hover\\:bg-red-600:hover { background-color: #dc2626; }
+        body:not(.tailwind-loaded) .hover\\:text-blue-600:hover { color: #2563eb; }
+        body:not(.tailwind-loaded) .hover\\:text-blue-800:hover { color: #1e40af; }
+        body:not(.tailwind-loaded) .transition-colors { transition: color 0.15s ease-in-out; }
+        body:not(.tailwind-loaded) .border { border: 1px solid #d1d5db; }
+        body:not(.tailwind-loaded) .border-blue-500 { border-color: #3b82f6; }
+        body:not(.tailwind-loaded) .focus\\:outline-none:focus { outline: none; }
+        body:not(.tailwind-loaded) .focus\\:border-blue-500:focus { border-color: #3b82f6; }
+        body:not(.tailwind-loaded) .cursor-pointer { cursor: pointer; }
+        body:not(.tailwind-loaded) .sticky { position: sticky; }
+        body:not(.tailwind-loaded) .top-0 { top: 0; }
+        body:not(.tailwind-loaded) .z-50 { z-index: 50; }
+        body:not(.tailwind-loaded) .hidden { display: none; }
+        body:not(.tailwind-loaded) .space-x-4 > * + * { margin-left: 1rem; }
+        body:not(.tailwind-loaded) .space-x-2 > * + * { margin-left: 0.5rem; }
+        body:not(.tailwind-loaded) .space-y-3 > * + * { margin-top: 0.75rem; }
+        body:not(.tailwind-loaded) .max-w-7xl { max-width: 80rem; }
+        body:not(.tailwind-loaded) .mx-auto { margin-left: auto; margin-right: auto; }
+        body:not(.tailwind-loaded) .w-full { width: 100%; }
+        
+        /* 网格布局 */
+        body:not(.tailwind-loaded) .grid-cols-1 { grid-template-columns: repeat(1, minmax(0, 1fr)); }
+        body:not(.tailwind-loaded) .gap-6 { gap: 1.5rem; }
+        body:not(.tailwind-loaded) .gap-4 { gap: 1rem; }
+        
+        @media (min-width: 768px) {
+            body:not(.tailwind-loaded) .md\\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            body:not(.tailwind-loaded) .md\\:grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+            body:not(.tailwind-loaded) .md\\:flex { display: flex; }
+        }
+        
+        @media (min-width: 1024px) {
+            body:not(.tailwind-loaded) .lg\\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+        }
+        
+        @media (min-width: 1280px) {
+            body:not(.tailwind-loaded) .xl\\:grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+        }
+        
+        /* 图标备用 */
+        body:not(.tailwind-loaded) .fas::before { font-style: normal; }
+        body:not(.tailwind-loaded) .fa-book-open::before { content: "📖"; }
+        body:not(.tailwind-loaded) .fa-home::before { content: "🏠"; }
+        body:not(.tailwind-loaded) .fa-chart-line::before { content: "📊"; }
+        body:not(.tailwind-loaded) .fa-sign-out-alt::before { content: "🚪"; }
+        body:not(.tailwind-loaded) .fa-sign-in-alt::before { content: "🔑"; }
+        body:not(.tailwind-loaded) .fa-times::before { content: "❌"; }
+        body:not(.tailwind-loaded) .fa-seedling::before { content: "🌱"; }
+        body:not(.tailwind-loaded) .fa-leaf::before { content: "🍃"; }
+        body:not(.tailwind-loaded) .fa-tree::before { content: "🌳"; }
+        body:not(.tailwind-loaded) .fa-mountain::before { content: "⛰️"; }
+        body:not(.tailwind-loaded) .fa-crown::before { content: "👑"; }
+        body:not(.tailwind-loaded) .fa-arrow-right::before { content: "→"; }
+    </style>
+    
+    <script>
+        // 检测TailwindCSS加载状态
+        document.addEventListener('DOMContentLoaded', function() {
+            const testElement = document.createElement('div');
+            testElement.className = 'bg-blue-500';
+            testElement.style.position = 'absolute';
+            testElement.style.visibility = 'hidden';
+            document.body.appendChild(testElement);
+            
+            const computedStyle = window.getComputedStyle(testElement);
+            if (computedStyle.backgroundColor === 'rgb(59, 130, 246)') {
+                document.body.classList.add('tailwind-loaded');
+                console.log('✅ TailwindCSS 加载成功');
+            } else {
+                console.log('⚠️ TailwindCSS 加载失败，使用备用样式');
+            }
+            
+            document.body.removeChild(testElement);
+        });
+    </script>
+    <style>
+        .difficulty-card {
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        .difficulty-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        .poem-card {
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        .poem-card:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .difficulty-1 { border-color: #10b981; background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%); }
+        .difficulty-2 { border-color: #3b82f6; background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); }
+        .difficulty-3 { border-color: #f59e0b; background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%); }
+        .difficulty-4 { border-color: #ef4444; background: linear-gradient(135deg, #fef2f2 0%, #fecaca 100%); }
+        .difficulty-5 { border-color: #8b5cf6; background: linear-gradient(135deg, #f5f3ff 0%, #e9d5ff 100%); }
+        
+        .stats-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- 导航栏 -->
+    <nav class="bg-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex justify-between items-center py-4">
+                <div class="flex items-center space-x-4">
+                    <h1 class="text-2xl font-bold text-gray-800">
+                        <i class="fas fa-book-open text-blue-600 mr-2"></i>
+                        古诗选择
+                    </h1>
+                    <div class="hidden md:flex space-x-4">
+                        <a href="/api-docs" class="text-gray-600 hover:text-blue-600 transition-colors">
+                            <i class="fas fa-book mr-1"></i>API文档
+                        </a>
+                        <a href="/dashboard" class="text-gray-600 hover:text-blue-600 transition-colors">
+                            <i class="fas fa-chart-line mr-1"></i>学习仪表板
+                        </a>
+                    </div>
+                </div>
+                
+                <div id="userInfo" class="hidden">
+                    <span id="username" class="mr-4 text-gray-700"></span>
+                    <button onclick="logout()" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition-colors">
+                        <i class="fas fa-sign-out-alt mr-1"></i>退出
+                    </button>
+                </div>
+                <div id="authButtons" class="space-x-2">
+                    <button onclick="showRegister()" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition-colors">
+                        <i class="fas fa-user-plus mr-1"></i>注册
+                    </button>
+                    <button onclick="showLogin()" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors">
+                        <i class="fas fa-sign-in-alt mr-1"></i>登录
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-7xl mx-auto px-4 py-8">
+        <!-- 统计卡片 -->
+        <div class="stats-card rounded-xl p-6 mb-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 text-center">
+                <div>
+                    <div class="text-3xl font-bold" id="totalPoems">0</div>
+                    <div class="text-sm opacity-90">总古诗数</div>
+                </div>
+                <div>
+                    <div class="text-3xl font-bold" id="dynastyCount">0</div>
+                    <div class="text-sm opacity-90">朝代数量</div>
+                </div>
+                <div>
+                    <div class="text-3xl font-bold" id="authorCount">0</div>
+                    <div class="text-sm opacity-90">诗人数量</div>
+                </div>
+                <div>
+                    <div class="text-3xl font-bold" id="avgDifficulty">0</div>
+                    <div class="text-sm opacity-90">平均难度</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 搜索和筛选 -->
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">搜索古诗</label>
+                    <input type="text" id="searchInput" placeholder="搜索标题、作者或内容..." 
+                           class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">朝代筛选</label>
+                    <select id="dynastyFilter" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-blue-500">
+                        <option value="">所有朝代</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">作者筛选</label>
+                    <select id="authorFilter" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-blue-500">
+                        <option value="">所有作者</option>
+                    </select>
+                </div>
+                <div class="flex items-end">
+                    <button onclick="clearFilters()" class="w-full bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors">
+                        <i class="fas fa-times mr-1"></i>清除筛选
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 按难度分类的古诗 -->
+        <div id="poemsByDifficulty">
+            <!-- 动态生成内容 -->
+        </div>
+    </div>
+
+    <!-- 登录模态框 -->
+    <div id="loginModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-xl p-8 max-w-md w-full mx-4">
+            <h2 class="text-2xl font-bold mb-6 text-center">用户登录</h2>
+            <form id="loginForm">
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">用户名</label>
+                    <input type="text" id="loginUsername" required 
+                           class="w-full px-3 py-2 border rounded focus:outline-none focus:border-blue-500">
+                </div>
+                <div class="mb-6">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">密码</label>
+                    <input type="password" id="loginPassword" required 
+                           class="w-full px-3 py-2 border rounded focus:outline-none focus:border-blue-500">
+                </div>
+                <div class="flex space-x-4">
+                    <button type="submit" class="flex-1 bg-blue-500 text-white py-2 rounded hover:bg-blue-600 transition-colors">
+                        登录
+                    </button>
+                    <button type="button" onclick="hideLogin()" class="flex-1 bg-gray-500 text-white py-2 rounded hover:bg-gray-600 transition-colors">
+                        取消
+                    </button>
+                </div>
+                <div class="mt-4 text-center">
+                    <span class="text-gray-600 text-sm">还没有账号？</span>
+                    <button type="button" onclick="switchToRegister()" class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                        立即注册
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 注册模态框 -->
+    <div id="registerModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-xl p-8 max-w-md w-full mx-4">
+            <h2 class="text-2xl font-bold mb-6 text-center">用户注册</h2>
+            <form id="registerForm">
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">用户名</label>
+                    <input type="text" id="registerUsername" required 
+                           class="w-full px-3 py-2 border rounded focus:outline-none focus:border-blue-500"
+                           placeholder="请输入用户名">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">邮箱</label>
+                    <input type="email" id="registerEmail" required 
+                           class="w-full px-3 py-2 border rounded focus:outline-none focus:border-blue-500"
+                           placeholder="请输入邮箱地址">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">密码</label>
+                    <input type="password" id="registerPassword" required 
+                           class="w-full px-3 py-2 border rounded focus:outline-none focus:border-blue-500"
+                           placeholder="请输入密码（至少6位）"
+                           minlength="6">
+                </div>
+                <div class="mb-6">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">确认密码</label>
+                    <input type="password" id="registerPasswordConfirm" required 
+                           class="w-full px-3 py-2 border rounded focus:outline-none focus:border-blue-500"
+                           placeholder="请再次输入密码"
+                           minlength="6">
+                </div>
+                <div class="flex space-x-4">
+                    <button type="submit" class="flex-1 bg-green-500 text-white py-2 rounded hover:bg-green-600 transition-colors">
+                        注册
+                    </button>
+                    <button type="button" onclick="hideRegister()" class="flex-1 bg-gray-500 text-white py-2 rounded hover:bg-gray-600 transition-colors">
+                        取消
+                    </button>
+                </div>
+                <div class="mt-4 text-center">
+                    <span class="text-gray-600 text-sm">已有账号？</span>
+                    <button type="button" onclick="switchToLogin()" class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                        立即登录
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // 全局变量
+        let authToken = localStorage.getItem('authToken');
+        let currentUser = null;
+        let allPoems = [];
+        let filteredPoems = [];
+        const API_BASE = '/api';
+
+        // 难度配置
+        const difficultyConfig = {
+            1: { name: '入门', icon: 'fa-seedling', color: 'green' },
+            2: { name: '初级', icon: 'fa-leaf', color: 'blue' },
+            3: { name: '中级', icon: 'fa-tree', color: 'yellow' },
+            4: { name: '高级', icon: 'fa-mountain', color: 'red' },
+            5: { name: '专家', icon: 'fa-crown', color: 'purple' }
+        };
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            if (authToken) {
+                checkAuthStatus();
+            }
+            loadPoems();
+            setupEventListeners();
+        });
+
+        // 设置事件监听器
+        function setupEventListeners() {
+            document.getElementById('searchInput').addEventListener('input', filterPoems);
+            document.getElementById('dynastyFilter').addEventListener('change', filterPoems);
+            document.getElementById('authorFilter').addEventListener('change', filterPoems);
+            
+            document.getElementById('loginForm').addEventListener('submit', handleLogin);
+            document.getElementById('registerForm').addEventListener('submit', handleRegister);
+        }
+
+        // 检查认证状态
+        async function checkAuthStatus() {
+            try {
+                const response = await fetch(`${API_BASE}/auth/profile`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                
+                if (response.ok) {
+                    currentUser = await response.json();
+                    updateUserUI();
+                } else {
+                    localStorage.removeItem('authToken');
+                    authToken = null;
+                }
+            } catch (error) {
+                console.error('认证检查失败:', error);
+            }
+        }
+
+        // 更新用户界面
+        function updateUserUI() {
+            const userInfo = document.getElementById('userInfo');
+            const authButtons = document.getElementById('authButtons');
+            
+            if (currentUser) {
+                document.getElementById('username').textContent = currentUser.username;
+                userInfo.classList.remove('hidden');
+                authButtons.classList.add('hidden');
+            } else {
+                userInfo.classList.add('hidden');
+                authButtons.classList.remove('hidden');
+            }
+        }
+
+        // 加载古诗数据
+        async function loadPoems() {
+            try {
+                const response = await fetch(`${API_BASE}/poems?per_page=100`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    allPoems = data.poems;
+                    filteredPoems = [...allPoems];
+                    
+                    updateStatistics();
+                    populateFilters();
+                    displayPoemsByDifficulty();
+                    
+                    console.log(`加载了 ${allPoems.length} 首古诗`);
+                } else {
+                    console.error('加载古诗失败:', data.error);
+                }
+            } catch (error) {
+                console.error('加载古诗错误:', error);
+            }
+        }
+
+        // 更新统计信息
+        function updateStatistics() {
+            const totalPoems = allPoems.length;
+            const dynasties = [...new Set(allPoems.map(p => p.dynasty))];
+            const authors = [...new Set(allPoems.map(p => p.author))];
+            const avgDifficulty = (allPoems.reduce((sum, p) => sum + p.difficulty_level, 0) / totalPoems).toFixed(1);
+            
+            document.getElementById('totalPoems').textContent = totalPoems;
+            document.getElementById('dynastyCount').textContent = dynasties.length;
+            document.getElementById('authorCount').textContent = authors.length;
+            document.getElementById('avgDifficulty').textContent = avgDifficulty;
+        }
+
+        // 填充筛选器选项
+        function populateFilters() {
+            const dynastyFilter = document.getElementById('dynastyFilter');
+            const authorFilter = document.getElementById('authorFilter');
+            
+            // 朝代选项
+            const dynasties = [...new Set(allPoems.map(p => p.dynasty))].sort();
+            dynasties.forEach(dynasty => {
+                const option = document.createElement('option');
+                option.value = dynasty;
+                option.textContent = dynasty;
+                dynastyFilter.appendChild(option);
+            });
+            
+            // 作者选项
+            const authors = [...new Set(allPoems.map(p => p.author))].sort();
+            authors.forEach(author => {
+                const option = document.createElement('option');
+                option.value = author;
+                option.textContent = author;
+                authorFilter.appendChild(option);
+            });
+        }
+
+        // 筛选古诗
+        function filterPoems() {
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            const dynasty = document.getElementById('dynastyFilter').value;
+            const author = document.getElementById('authorFilter').value;
+            
+            filteredPoems = allPoems.filter(poem => {
+                const matchSearch = !search || 
+                    poem.title.toLowerCase().includes(search) ||
+                    poem.author.toLowerCase().includes(search) ||
+                    poem.content.toLowerCase().includes(search);
+                
+                const matchDynasty = !dynasty || poem.dynasty === dynasty;
+                const matchAuthor = !author || poem.author === author;
+                
+                return matchSearch && matchDynasty && matchAuthor;
+            });
+            
+            displayPoemsByDifficulty();
+        }
+
+        // 清除筛选
+        function clearFilters() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('dynastyFilter').value = '';
+            document.getElementById('authorFilter').value = '';
+            filteredPoems = [...allPoems];
+            displayPoemsByDifficulty();
+        }
+
+        // 按难度显示古诗
+        function displayPoemsByDifficulty() {
+            const container = document.getElementById('poemsByDifficulty');
+            container.innerHTML = '';
+            
+            console.log('显示古诗，总数:', filteredPoems.length);
+            
+            // 按难度分组
+            const poemsByLevel = {};
+            for (let i = 1; i <= 5; i++) {
+                poemsByLevel[i] = filteredPoems.filter(p => p.difficulty_level === i);
+                console.log(`难度${i}:`, poemsByLevel[i].length, '首');
+            }
+            
+            // 为每个难度级别创建卡片
+            for (let level = 1; level <= 5; level++) {
+                const poems = poemsByLevel[level];
+                if (poems.length === 0) {
+                    console.log(`跳过难度${level}，无古诗`);
+                    continue;
+                }
+                
+                const config = difficultyConfig[level];
+                const levelCard = document.createElement('div');
+                levelCard.className = `difficulty-card difficulty-${level} rounded-xl p-6 mb-8`;
+                
+                levelCard.innerHTML = `
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="text-2xl font-bold text-gray-800">
+                            <i class="fas ${config.icon} mr-2"></i>
+                            难度${level} - ${config.name}
+                        </h2>
+                        <span class="bg-white bg-opacity-80 px-3 py-1 rounded-full text-sm font-medium">
+                            ${poems.length} 首
+                        </span>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4" id="poems-level-${level}">
+                    </div>
+                `;
+                
+                container.appendChild(levelCard);
+                
+                // 添加该难度的古诗
+                const poemsGrid = document.getElementById(`poems-level-${level}`);
+                poems.forEach(poem => {
+                    const poemCard = document.createElement('div');
+                    poemCard.className = 'poem-card bg-white rounded-lg p-4 shadow-md hover:shadow-lg';
+                    poemCard.onclick = () => openPoem(poem.id);
+                    
+                    // 安全处理内容和标签
+                    const content = poem.content || '暂无内容';
+                    const contentPreview = content.length > 50 ? content.substring(0, 50) + '...' : content;
+                    
+                    let tagsText = '经典';
+                    try {
+                        if (poem.tags) {
+                            const tags = JSON.parse(poem.tags);
+                            tagsText = Array.isArray(tags) ? tags.slice(0, 2).join(' · ') : '经典';
+                        }
+                    } catch (e) {
+                        console.warn('解析标签失败:', poem.tags);
+                    }
+                    
+                    poemCard.innerHTML = `
+                        <h3 class="font-bold text-lg mb-2 text-gray-800">${poem.title || '未知标题'}</h3>
+                        <p class="text-gray-600 text-sm mb-2">${poem.author || '未知作者'} · ${poem.dynasty || '未知朝代'}</p>
+                        <p class="text-gray-500 text-xs line-clamp-2 mb-3">${contentPreview}</p>
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded">
+                                ${tagsText}
+                            </span>
+                            <i class="fas fa-arrow-right text-blue-500"></i>
+                        </div>
+                    `;
+                    
+                    poemsGrid.appendChild(poemCard);
+                });
+                
+                console.log(`难度${level}卡片创建完成，包含${poems.length}首古诗`);
+            }
+            
+            if (container.children.length === 0) {
+                container.innerHTML = '<div class="text-center py-12 text-gray-500">没有找到符合条件的古诗</div>';
+            }
+        }
+
+        // 打开古诗学习页面
+        function openPoem(poemId) {
+            window.location.href = `/poem/${poemId}`;
+        }
+
+        // 显示登录模态框
+        function showLogin() {
+            document.getElementById('loginModal').classList.remove('hidden');
+            document.getElementById('loginModal').classList.add('flex');
+        }
+
+        // 隐藏登录模态框
+        function hideLogin() {
+            document.getElementById('loginModal').classList.add('hidden');
+            document.getElementById('loginModal').classList.remove('flex');
+        }
+
+        // 显示注册模态框
+        function showRegister() {
+            document.getElementById('registerModal').classList.remove('hidden');
+            document.getElementById('registerModal').classList.add('flex');
+        }
+
+        // 隐藏注册模态框
+        function hideRegister() {
+            document.getElementById('registerModal').classList.add('hidden');
+            document.getElementById('registerModal').classList.remove('flex');
+        }
+
+        // 切换到注册
+        function switchToRegister() {
+            hideLogin();
+            showRegister();
+        }
+
+        // 切换到登录
+        function switchToLogin() {
+            hideRegister();
+            showLogin();
+        }
+
+        // 处理登录
+        async function handleLogin(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('loginUsername').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            try {
+                const response = await fetch(`${API_BASE}/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    authToken = data.token;
+                    localStorage.setItem('authToken', authToken);
+                    currentUser = data.user;
+                    updateUserUI();
+                    hideLogin();
+                    alert('登录成功！');
+                } else {
+                    alert('登录失败: ' + data.error);
+                }
+            } catch (error) {
+                alert('登录错误: ' + error.message);
+            }
+        }
+
+        // 处理注册
+        async function handleRegister(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('registerUsername').value;
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+            const passwordConfirm = document.getElementById('registerPasswordConfirm').value;
+            
+            // 验证密码匹配
+            if (password !== passwordConfirm) {
+                alert('两次输入的密码不一致！');
+                return;
+            }
+            
+            // 验证密码长度
+            if (password.length < 6) {
+                alert('密码长度至少为6位！');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE}/auth/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, email, password })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    authToken = data.token;
+                    localStorage.setItem('authToken', authToken);
+                    currentUser = data.user;
+                    updateUserUI();
+                    hideRegister();
+                    alert('注册成功！欢迎 ' + username);
+                } else {
+                    alert('注册失败: ' + data.error);
+                }
+            } catch (error) {
+                alert('注册错误: ' + error.message);
+            }
+        }
+
+        // 退出登录
+        function logout() {
+            authToken = null;
+            currentUser = null;
+            localStorage.removeItem('authToken');
+            updateUserUI();
+            alert('已退出登录');
+        }
+    </script>
+</body>
+</html>

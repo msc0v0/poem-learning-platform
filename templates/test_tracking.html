@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>追踪系统测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .card {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        #log {
+            background: #000;
+            color: #0f0;
+            padding: 15px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+        }
+        input {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            width: 200px;
+            margin: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 追踪系统测试工具</h1>
+    
+    <div class="card">
+        <h2>1. 登录</h2>
+        <input type="text" id="username" placeholder="用户名" value="123">
+        <input type="password" id="password" placeholder="密码" value="123">
+        <button onclick="login()">登录</button>
+    </div>
+    
+    <div class="card">
+        <h2>2. 测试追踪功能</h2>
+        <button onclick="testCreateSession()">创建会话</button>
+        <button onclick="testRecordEvent()">记录单个事件</button>
+        <button onclick="testBatchEvents()">批量记录事件</button>
+        <button onclick="testEndSession()">结束会话</button>
+    </div>
+    
+    <div class="card">
+        <h2>3. 查看结果</h2>
+        <button onclick="checkDatabase()">检查数据库</button>
+        <button onclick="clearLog()">清空日志</button>
+    </div>
+    
+    <div class="card">
+        <h2>日志输出</h2>
+        <div id="log"></div>
+    </div>
+    
+    <script>
+        let token = null;
+        let sessionId = null;
+        
+        function log(message, type = 'info') {
+            const logDiv = document.getElementById('log');
+            const timestamp = new Date().toLocaleTimeString();
+            const prefix = type === 'error' ? '❌' : type === 'success' ? '✅' : '📝';
+            logDiv.innerHTML += `[${timestamp}] ${prefix} ${message}\n`;
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+        
+        function clearLog() {
+            document.getElementById('log').innerHTML = '';
+        }
+        
+        async function login() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            log(`正在登录，用户名: ${username}...`);
+            
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({username, password})
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    token = data.access_token;
+                    if (token) {
+                        log(`登录成功! Token: ${token.substring(0, 20)}...`, 'success');
+                    } else {
+                        log(`登录成功，但未获取到Token`, 'error');
+                    }
+                } else {
+                    log(`登录失败: ${JSON.stringify(data)}`, 'error');
+                }
+            } catch (error) {
+                log(`登录异常: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testCreateSession() {
+            if (!token) {
+                log('请先登录!', 'error');
+                return;
+            }
+            
+            log('正在创建学习会话...');
+            
+            try {
+                const response = await fetch('/api/tracking/session/start', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        poem_id: 1,
+                        device_info: {
+                            browser: navigator.userAgent,
+                            screen: `${screen.width}x${screen.height}`
+                        }
+                    })
+                });
+                
+                const data = await response.json();
+                log(`状态码: ${response.status}`);
+                log(`响应: ${JSON.stringify(data, null, 2)}`);
+                
+                if (response.ok) {
+                    sessionId = data.session_id;
+                    log(`会话创建成功! Session ID: ${sessionId}`, 'success');
+                } else {
+                    log(`会话创建失败: ${data.error}`, 'error');
+                }
+            } catch (error) {
+                log(`请求异常: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testRecordEvent() {
+            if (!token || !sessionId) {
+                log('请先登录并创建会话!', 'error');
+                return;
+            }
+            
+            log('正在记录单个事件...');
+            
+            try {
+                const response = await fetch('/api/tracking/event', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        session_id: sessionId,
+                        event_type: 'test_click',
+                        event_target: 'test_button',
+                        event_data: {
+                            test: 'from test page',
+                            timestamp: new Date().toISOString()
+                        }
+                    })
+                });
+                
+                const data = await response.json();
+                log(`响应: ${JSON.stringify(data, null, 2)}`);
+                
+                if (response.ok) {
+                    log(`事件记录成功!`, 'success');
+                } else {
+                    log(`事件记录失败: ${data.error}`, 'error');
+                }
+            } catch (error) {
+                log(`请求异常: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testBatchEvents() {
+            if (!token || !sessionId) {
+                log('请先登录并创建会话!', 'error');
+                return;
+            }
+            
+            log('正在批量记录3个事件...');
+            
+            try {
+                const response = await fetch('/api/tracking/events/batch', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        session_id: sessionId,
+                        events: [
+                            {
+                                event_type: 'mouse_move',
+                                event_data: {x: 100, y: 200},
+                                timestamp: new Date().toISOString()
+                            },
+                            {
+                                event_type: 'scroll',
+                                event_data: {scrollY: 500},
+                                timestamp: new Date().toISOString()
+                            },
+                            {
+                                event_type: 'ai_question',
+                                event_data: {question: '测试问题'},
+                                timestamp: new Date().toISOString()
+                            }
+                        ]
+                    })
+                });
+                
+                const data = await response.json();
+                log(`响应: ${JSON.stringify(data, null, 2)}`);
+                
+                if (response.ok) {
+                    log(`批量事件记录成功!`, 'success');
+                } else {
+                    log(`批量事件记录失败: ${data.error}`, 'error');
+                }
+            } catch (error) {
+                log(`请求异常: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testEndSession() {
+            if (!token || !sessionId) {
+                log('请先登录并创建会话!', 'error');
+                return;
+            }
+            
+            log('正在结束会话...');
+            
+            try {
+                const response = await fetch(`/api/tracking/session/${sessionId}/end`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        duration_seconds: 120,
+                        is_completed: true
+                    })
+                });
+                
+                const data = await response.json();
+                log(`响应: ${JSON.stringify(data, null, 2)}`);
+                
+                if (response.ok) {
+                    log(`会话结束成功!`, 'success');
+                    sessionId = null;
+                } else {
+                    log(`会话结束失败: ${data.error}`, 'error');
+                }
+            } catch (error) {
+                log(`请求异常: ${error.message}`, 'error');
+            }
+        }
+        
+        async function checkDatabase() {
+            log('正在检查数据库...');
+            log('请在服务器端运行: python verify_tracking.py');
+        }
+        
+        // 页面加载时检查token
+        window.onload = function() {
+            log('测试工具已加载');
+            log('步骤: 1.登录 → 2.创建会话 → 3.记录事件 → 4.结束会话 → 5.检查数据库');
+        };
+    </script>
+</body>
+</html>

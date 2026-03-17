@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>多模态AI古诗教学平台</title>
+    <style>
+        body {
+            font-family: 'Microsoft YaHei', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .api-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .api-section h2 {
+            color: #666;
+            margin-top: 0;
+        }
+        .endpoint {
+            background: #f8f9fa;
+            padding: 10px;
+            margin: 10px 0;
+            border-left: 4px solid #007bff;
+            font-family: monospace;
+        }
+        .method {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 3px;
+            color: white;
+            font-size: 12px;
+            margin-right: 10px;
+        }
+        .get { background-color: #28a745; }
+        .post { background-color: #007bff; }
+        .put { background-color: #ffc107; color: #000; }
+        .delete { background-color: #dc3545; }
+        .note {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏮 多模态AI古诗教学平台 API 文档</h1>
+        
+        <div class="note">
+            <strong>📋 项目状态：</strong> 后端API开发完成，前端开发中...<br>
+            <strong>🔗 API基础URL：</strong> http://localhost:5000/api<br>
+            <strong>🔑 认证方式：</strong> JWT Token (Bearer Token)
+        </div>
+
+        <div class="api-section">
+            <h2>🔐 用户认证</h2>
+            <div class="endpoint">
+                <span class="method post">POST</span> /auth/register - 用户注册
+            </div>
+            <div class="endpoint">
+                <span class="method post">POST</span> /auth/login - 用户登录
+            </div>
+            <div class="endpoint">
+                <span class="method get">GET</span> /auth/profile - 获取用户信息
+            </div>
+            <div class="endpoint">
+                <span class="method put">PUT</span> /auth/profile - 更新用户信息
+            </div>
+        </div>
+
+        <div class="api-section">
+            <h2>📚 古诗管理</h2>
+            <div class="endpoint">
+                <span class="method get">GET</span> /poems - 获取古诗列表
+            </div>
+            <div class="endpoint">
+                <span class="method get">GET</span> /poems/{id} - 获取单首古诗详情
+            </div>
+            <div class="endpoint">
+                <span class="method post">POST</span> /poems/{id}/start-learning - 开始学习古诗
+            </div>
+            <div class="endpoint">
+                <span class="method get">GET</span> /poems/recommend - 获取推荐古诗
+            </div>
+        </div>
+
+        <div class="api-section">
+            <h2>🤖 AI问答</h2>
+            <div class="endpoint">
+                <span class="method post">POST</span> /ai/word-analysis - 字词解析
+            </div>
+            <div class="endpoint">
+                <span class="method post">POST</span> /ai/background-explanation - 背景介绍
+            </div>
+            <div class="endpoint">
+                <span class="method post">POST</span> /ai/artistic-analysis - 意境赏析
+            </div>
+            <div class="endpoint">
+                <span class="method post">POST</span> /ai/general-question - 一般问答
+            </div>
+        </div>
+
+        <div class="api-section">
+            <h2>📝 练习系统</h2>
+            <div class="endpoint">
+                <span class="method get">GET</span> /exercises/poem/{id} - 获取古诗练习题
+            </div>
+            <div class="endpoint">
+                <span class="method post">POST</span> /exercises/generate/{id} - 生成练习题
+            </div>
+            <div class="endpoint">
+                <span class="method post">POST</span> /exercises/submit - 提交答案
+            </div>
+            <div class="endpoint">
+                <span class="method get">GET</span> /exercises/statistics - 练习统计
+            </div>
+        </div>
+
+        <div class="api-section">
+            <h2>📊 学习记录</h2>
+            <div class="endpoint">
+                <span class="method get">GET</span> /learning/records - 获取学习记录
+            </div>
+            <div class="endpoint">
+                <span class="method get">GET</span> /learning/statistics - 学习统计
+            </div>
+            <div class="endpoint">
+                <span class="method get">GET</span> /learning/progress-report - 学习报告
+            </div>
+        </div>
+
+        <div class="api-section">
+            <h2>📈 仪表板</h2>
+            <div class="endpoint">
+                <span class="method get">GET</span> /dashboard/overview - 概览数据
+            </div>
+            <div class="endpoint">
+                <span class="method get">GET</span> /dashboard/learning-trends - 学习趋势
+            </div>
+            <div class="endpoint">
+                <span class="method get">GET</span> /dashboard/recommendations - 个性化推荐
+            </div>
+            <div class="endpoint">
+                <span class="method get">GET</span> /dashboard/achievements - 学习成就
+            </div>
+        </div>
+
+        <div class="note">
+            <strong>🚀 快速开始：</strong><br>
+            1. 运行 <code>pip install -r requirements.txt</code> 安装依赖<br>
+            2. 运行 <code>python init_db.py</code> 初始化数据库<br>
+            3. 运行 <code>python app.py</code> 启动后端服务<br>
+            4. 访问 <code>http://localhost:5000/api/health</code> 检查服务状态
+        </div>
+    </div>
+</body>
+</html>

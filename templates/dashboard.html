@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>学习仪表板 - 古诗教学平台</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-gray-50">
+    <!-- 导航栏 -->
+    <nav class="bg-white shadow-lg">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex justify-between items-center py-4">
+                <h1 class="text-2xl font-bold text-gray-800">
+                    <i class="fas fa-chart-line text-blue-600 mr-2"></i>
+                    学习仪表板
+                </h1>
+                <div class="space-x-4">
+                    <a href="/poems" class="text-blue-600 hover:text-blue-800">
+                        <i class="fas fa-arrow-left mr-1"></i>返回学习
+                    </a>
+                    <span id="username" class="text-gray-600"></span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-7xl mx-auto px-4 py-8">
+        <!-- 统计卡片 -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <div class="flex items-center">
+                    <div class="p-3 rounded-full bg-blue-100 text-blue-600">
+                        <i class="fas fa-book text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm text-gray-600">已学诗歌</p>
+                        <p id="completedPoems" class="text-2xl font-bold text-gray-900">0</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <div class="flex items-center">
+                    <div class="p-3 rounded-full bg-green-100 text-green-600">
+                        <i class="fas fa-clock text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm text-gray-600">学习时长</p>
+                        <p id="studyTime" class="text-2xl font-bold text-gray-900">0分钟</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <div class="flex items-center">
+                    <div class="p-3 rounded-full bg-yellow-100 text-yellow-600">
+                        <i class="fas fa-percentage text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm text-gray-600">练习正确率</p>
+                        <p id="accuracy" class="text-2xl font-bold text-gray-900">0%</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <div class="flex items-center">
+                    <div class="p-3 rounded-full bg-purple-100 text-purple-600">
+                        <i class="fas fa-question-circle text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm text-gray-600">AI问答次数</p>
+                        <p id="totalQuestions" class="text-2xl font-bold text-gray-900">0</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 图表区域 -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+            <!-- 学习趋势图 -->
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h3 class="text-lg font-bold mb-4">学习时长趋势（最近7天）</h3>
+                <canvas id="studyTrendChart" width="400" height="200"></canvas>
+            </div>
+
+            <!-- 题型表现图 -->
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h3 class="text-lg font-bold mb-4">各题型表现</h3>
+                <canvas id="performanceChart" width="400" height="200"></canvas>
+            </div>
+        </div>
+
+        <!-- 朝代偏好和成就 -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+            <!-- 朝代偏好 -->
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h3 class="text-lg font-bold mb-4">朝代学习偏好</h3>
+                <canvas id="dynastyChart" width="400" height="200"></canvas>
+            </div>
+
+            <!-- 学习成就 -->
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h3 class="text-lg font-bold mb-4">学习成就</h3>
+                <div id="achievementsList" class="space-y-3">
+                    <!-- 成就列表将在这里动态加载 -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 最近活动 -->
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <h3 class="text-lg font-bold mb-4">最近学习活动</h3>
+            <div id="recentActivity" class="space-y-3">
+                <!-- 最近活动将在这里动态加载 -->
+            </div>
+        </div>
+
+        <!-- 个性化推荐 -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mt-8">
+            <h3 class="text-lg font-bold mb-4">为您推荐</h3>
+            <div id="recommendations" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <!-- 推荐内容将在这里动态加载 -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 全局变量
+        let authToken = localStorage.getItem('authToken');
+        const API_BASE = '/api';
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            if (!authToken) {
+                alert('请先登录');
+                window.location.href = '/poems';
+                return;
+            }
+            
+            loadDashboardData();
+        });
+
+        // 加载仪表板数据
+        async function loadDashboardData() {
+            try {
+                // 加载概览数据
+                const overviewResponse = await fetch(`${API_BASE}/dashboard/overview`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                
+                if (overviewResponse.ok) {
+                    const overviewData = await overviewResponse.json();
+                    updateOverviewStats(overviewData);
+                    updateRecentActivity(overviewData.recent_activity);
+                }
+
+                // 加载学习趋势
+                const trendsResponse = await fetch(`${API_BASE}/dashboard/learning-trends?days=7`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                
+                if (trendsResponse.ok) {
+                    const trendsData = await trendsResponse.json();
+                    createStudyTrendChart(trendsData.learning_trends);
+                }
+
+                // 加载表现分析
+                const performanceResponse = await fetch(`${API_BASE}/dashboard/performance-analysis`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                
+                if (performanceResponse.ok) {
+                    const performanceData = await performanceResponse.json();
+                    createPerformanceChart(performanceData.type_performance);
+                    createDynastyChart(performanceData.dynasty_preference);
+                }
+
+                // 加载成就
+                const achievementsResponse = await fetch(`${API_BASE}/dashboard/achievements`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                
+                if (achievementsResponse.ok) {
+                    const achievementsData = await achievementsResponse.json();
+                    updateAchievements(achievementsData.achievements);
+                }
+
+                // 加载推荐
+                const recommendationsResponse = await fetch(`${API_BASE}/dashboard/recommendations`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                
+                if (recommendationsResponse.ok) {
+                    const recommendationsData = await recommendationsResponse.json();
+                    updateRecommendations(recommendationsData.recommendations);
+                }
+
+            } catch (error) {
+                console.error('加载仪表板数据失败:', error);
+            }
+        }
+
+        // 更新概览统计
+        function updateOverviewStats(data) {
+            document.getElementById('username').textContent = data.user_info.username;
+            document.getElementById('completedPoems').textContent = data.statistics.completed_poems;
+            document.getElementById('studyTime').textContent = `${data.statistics.total_study_time_minutes}分钟`;
+            document.getElementById('accuracy').textContent = `${data.statistics.exercise_accuracy.toFixed(1)}%`;
+            document.getElementById('totalQuestions').textContent = data.statistics.total_questions;
+        }
+
+        // 创建学习趋势图
+        function createStudyTrendChart(trendsData) {
+            const ctx = document.getElementById('studyTrendChart').getContext('2d');
+            
+            const labels = trendsData.map(item => {
+                const date = new Date(item.date);
+                return `${date.getMonth() + 1}/${date.getDate()}`;
+            });
+            
+            const studyTimeData = trendsData.map(item => item.study_time_minutes);
+            
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: '学习时长（分钟）',
+                        data: studyTimeData,
+                        borderColor: 'rgb(59, 130, 246)',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        // 创建题型表现图
+        function createPerformanceChart(performanceData) {
+            const ctx = document.getElementById('performanceChart').getContext('2d');
+            
+            const labels = performanceData.map(item => item.question_type);
+            const accuracyData = performanceData.map(item => item.accuracy_rate);
+            
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: '正确率（%）',
+                        data: accuracyData,
+                        backgroundColor: [
+                            'rgba(59, 130, 246, 0.8)',
+                            'rgba(16, 185, 129, 0.8)',
+                            'rgba(245, 158, 11, 0.8)',
+                            'rgba(139, 92, 246, 0.8)'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100
+                        }
+                    }
+                }
+            });
+        }
+
+        // 创建朝代偏好图
+        function createDynastyChart(dynastyData) {
+            const ctx = document.getElementById('dynastyChart').getContext('2d');
+            
+            const labels = dynastyData.map(item => item.dynasty);
+            const counts = dynastyData.map(item => item.poems_studied);
+            
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: counts,
+                        backgroundColor: [
+                            '#FF6384',
+                            '#36A2EB',
+                            '#FFCE56',
+                            '#4BC0C0',
+                            '#9966FF',
+                            '#FF9F40'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+
+        // 更新成就列表
+        function updateAchievements(achievements) {
+            const achievementsList = document.getElementById('achievementsList');
+            achievementsList.innerHTML = '';
+            
+            achievements.forEach(achievement => {
+                const achievementDiv = document.createElement('div');
+                achievementDiv.className = `flex items-center p-3 rounded-lg ${achievement.unlocked ? 'bg-green-50 border-green-200' : 'bg-gray-50 border-gray-200'} border`;
+                
+                achievementDiv.innerHTML = `
+                    <div class="text-2xl mr-3">${achievement.icon}</div>
+                    <div class="flex-1">
+                        <h4 class="font-bold ${achievement.unlocked ? 'text-green-800' : 'text-gray-600'}">${achievement.title}</h4>
+                        <p class="text-sm ${achievement.unlocked ? 'text-green-600' : 'text-gray-500'}">${achievement.description}</p>
+                        ${!achievement.unlocked ? `
+                            <div class="mt-2">
+                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                    <div class="bg-blue-600 h-2 rounded-full" style="width: ${achievement.progress}%"></div>
+                                </div>
+                                <p class="text-xs text-gray-500 mt-1">${achievement.progress.toFixed(1)}%</p>
+                            </div>
+                        ` : ''}
+                    </div>
+                    ${achievement.unlocked ? '<i class="fas fa-check-circle text-green-500 text-xl"></i>' : ''}
+                `;
+                
+                achievementsList.appendChild(achievementDiv);
+            });
+        }
+
+        // 更新最近活动
+        function updateRecentActivity(activities) {
+            const recentActivity = document.getElementById('recentActivity');
+            recentActivity.innerHTML = '';
+            
+            if (activities.length === 0) {
+                recentActivity.innerHTML = '<p class="text-gray-500 text-center py-4">暂无学习活动</p>';
+                return;
+            }
+            
+            activities.forEach(activity => {
+                const activityDiv = document.createElement('div');
+                activityDiv.className = 'flex items-center p-3 border-l-4 border-blue-500 bg-blue-50';
+                
+                const icon = activity.type === 'learning' ? 'fa-book' : 'fa-pencil-alt';
+                const time = new Date(activity.time).toLocaleString('zh-CN');
+                
+                activityDiv.innerHTML = `
+                    <i class="fas ${icon} text-blue-600 mr-3"></i>
+                    <div class="flex-1">
+                        <p class="font-medium">${activity.title}</p>
+                        <p class="text-sm text-gray-600">${time}</p>
+                    </div>
+                    ${activity.is_correct !== undefined ? 
+                        `<span class="px-2 py-1 rounded text-xs ${activity.is_correct ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">
+                            ${activity.is_correct ? '正确' : '错误'}
+                        </span>` : ''
+                    }
+                `;
+                
+                recentActivity.appendChild(activityDiv);
+            });
+        }
+
+        // 更新推荐内容
+        function updateRecommendations(recommendations) {
+            const recommendationsDiv = document.getElementById('recommendations');
+            recommendationsDiv.innerHTML = '';
+            
+            if (recommendations.length === 0) {
+                recommendationsDiv.innerHTML = '<p class="text-gray-500 text-center py-4 col-span-full">暂无推荐内容</p>';
+                return;
+            }
+            
+            recommendations.forEach(rec => {
+                const recDiv = document.createElement('div');
+                recDiv.className = 'bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer';
+                
+                recDiv.innerHTML = `
+                    <h4 class="font-bold text-lg mb-2">${rec.poem.title}</h4>
+                    <p class="text-gray-600 mb-2">${rec.poem.author} · ${rec.poem.dynasty}</p>
+                    <p class="text-sm text-blue-600 mb-3">${rec.reason}</p>
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
+                            难度${rec.poem.difficulty_level}
+                        </span>
+                        <button onclick="goToPoem(${rec.poem.id})" class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                            开始学习 →
+                        </button>
+                    </div>
+                `;
+                
+                recommendationsDiv.appendChild(recDiv);
+            });
+        }
+
+        // 跳转到古诗学习
+        function goToPoem(poemId) {
+            window.location.href = `/poem/${poemId}`;
+        }
+    </script>
+</body>
+</html>

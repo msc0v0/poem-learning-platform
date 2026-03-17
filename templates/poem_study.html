@@ -1,0 +1,2835 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>古诗学习 - 古诗教学平台</title>
+    <!-- 使用替代CDN或本地样式 -->
+<!--    <link href="https://unpkg.com/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">-->
+<!--    <link rel="stylesheet" href="https://cdnjs.loli.net/ajax/libs/font-awesome/6.0.0/css/all.min.css">-->
+    <link href="/static/css/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/all.min.css">
+    
+    <!-- 如果CDN被阻止，使用备用样式 -->
+    <style>
+        /*@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');*/
+        @import url('/static/webfonts/fa-solid-900.woff2');
+
+        /* 备用样式 - 只在CDN失败时生效 */
+        .tailwind-fallback {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        }
+        
+        /* 检测TailwindCSS是否加载成功 */
+        .test-tailwind {
+            display: none;
+        }
+        
+        /* 如果TailwindCSS未加载，显示备用样式 */
+        body:not(.tailwind-loaded) {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            margin: 0;
+            background-color: #f8fafc;
+        }
+        
+        body:not(.tailwind-loaded) .bg-white { background-color: #ffffff; }
+        body:not(.tailwind-loaded) .shadow-lg { box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
+        body:not(.tailwind-loaded) .rounded-xl { border-radius: 0.75rem; }
+        body:not(.tailwind-loaded) .p-6 { padding: 1.5rem; }
+        body:not(.tailwind-loaded) .mb-4 { margin-bottom: 1rem; }
+        body:not(.tailwind-loaded) .flex { display: flex; }
+        body:not(.tailwind-loaded) .items-center { align-items: center; }
+        body:not(.tailwind-loaded) .justify-between { justify-content: space-between; }
+        body:not(.tailwind-loaded) .text-xl { font-size: 1.25rem; }
+        body:not(.tailwind-loaded) .font-bold { font-weight: 700; }
+        body:not(.tailwind-loaded) .text-gray-800 { color: #1f2937; }
+        body:not(.tailwind-loaded) .text-blue-600 { color: #2563eb; }
+        body:not(.tailwind-loaded) .bg-blue-500 { background-color: #3b82f6; }
+        body:not(.tailwind-loaded) .text-white { color: #ffffff; }
+        body:not(.tailwind-loaded) .px-4 { padding-left: 1rem; padding-right: 1rem; }
+        body:not(.tailwind-loaded) .py-2 { padding-top: 0.5rem; padding-bottom: 0.5rem; }
+        body:not(.tailwind-loaded) .rounded-lg { border-radius: 0.5rem; }
+        body:not(.tailwind-loaded) .border { border: 1px solid #d1d5db; }
+        body:not(.tailwind-loaded) .hidden { display: none; }
+        body:not(.tailwind-loaded) .sticky { position: sticky; }
+        body:not(.tailwind-loaded) .top-0 { top: 0; }
+        
+        /* Font Awesome 备用图标 */
+        body:not(.tailwind-loaded) .fa-arrow-left::before { content: "←"; }
+        body:not(.tailwind-loaded) .fa-book-open::before { content: "📖"; }
+        body:not(.tailwind-loaded) .fa-expand::before { content: "⛶"; }
+        body:not(.tailwind-loaded) .fa-chart-line::before { content: "📊"; }
+        body:not(.tailwind-loaded) .fa-star::before { content: "⭐"; }
+        body:not(.tailwind-loaded) .fa-volume-up::before { content: "🔊"; }
+        body:not(.tailwind-loaded) .fa-play::before { content: "▶️"; }
+        body:not(.tailwind-loaded) .fa-pencil-alt::before { content: "✏️"; }
+        body:not(.tailwind-loaded) .fa-check::before { content: "✅"; }
+        body:not(.tailwind-loaded) .fa-scroll::before { content: "📜"; }
+        body:not(.tailwind-loaded) .fa-language::before { content: "🌐"; }
+        body:not(.tailwind-loaded) .fa-history::before { content: "📚"; }
+        body:not(.tailwind-loaded) .fa-bookmark::before { content: "🔖"; }
+        body:not(.tailwind-loaded) .fa-robot::before { content: "🤖"; }
+        body:not(.tailwind-loaded) .fa-search::before { content: "🔍"; }
+        body:not(.tailwind-loaded) .fa-palette::before { content: "🎨"; }
+        body:not(.tailwind-loaded) .fa-trash::before { content: "🗑️"; }
+        body:not(.tailwind-loaded) .fa-paper-plane::before { content: "📤"; }
+        body:not(.tailwind-loaded) .fa-user::before { content: "👤"; }
+        body:not(.tailwind-loaded) .fa-exclamation-triangle::before { content: "⚠️"; }
+    </style>
+    
+    <script>
+        // 检测TailwindCSS是否成功加载
+        document.addEventListener('DOMContentLoaded', function() {
+            const testElement = document.createElement('div');
+            testElement.className = 'bg-blue-500';
+            document.body.appendChild(testElement);
+            
+            const computedStyle = window.getComputedStyle(testElement);
+            if (computedStyle.backgroundColor === 'rgb(59, 130, 246)') {
+                document.body.classList.add('tailwind-loaded');
+                console.log('✅ TailwindCSS 加载成功');
+            } else {
+                console.log('⚠️ TailwindCSS 加载失败，使用备用样式');
+            }
+            
+            document.body.removeChild(testElement);
+        });
+    </script>
+    <style>
+        .resizable-container {
+            display: flex;
+            height: calc(100vh - 80px);
+            overflow: hidden;
+        }
+        
+        .poem-panel {
+            background: white;
+            overflow-y: auto;
+            padding: 2rem;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        }
+        
+        .ai-panel {
+            background: #f8fafc;
+            overflow-y: auto;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .resizer {
+            width: 6px;
+            background: #e2e8f0;
+            cursor: col-resize;
+            position: relative;
+            transition: background-color 0.2s;
+        }
+        
+        .resizer:hover {
+            background: #3b82f6;
+        }
+        
+        .resizer::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 2px;
+            height: 30px;
+            background: #94a3b8;
+            border-radius: 1px;
+        }
+        
+        .poem-content {
+            line-height: 2.5;
+            font-size: 1.25rem;
+            font-family: 'KaiTi', '楷体', serif;
+        }
+        
+        .chat-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+        }
+        
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem;
+            background: white;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+            max-height: 400px;
+        }
+        
+        .chat-message {
+            margin-bottom: 1rem;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            max-width: 85%;
+        }
+        
+        .user-message {
+            background: #3b82f6;
+            color: white;
+            margin-left: auto;
+        }
+        
+        .ai-message {
+            background: #f1f5f9;
+            color: #1e293b;
+            margin-right: auto;
+        }
+        
+        /* Markdown样式美化 */
+        .markdown-content {
+            font-size: 14px;
+            line-height: 1.7;
+        }
+        
+        .markdown-content strong {
+            font-weight: 700;
+            color: #1e293b;
+        }
+        
+        .markdown-content em {
+            font-style: italic;
+            color: #475569;
+        }
+        
+        .markdown-content code {
+            background: #e2e8f0;
+            color: #dc2626;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+        }
+        
+        .markdown-content pre {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 12px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 8px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+        
+        .markdown-content pre code {
+            background: transparent;
+            color: inherit;
+            padding: 0;
+        }
+        
+        .markdown-content h1 {
+            font-size: 1.5em;
+            font-weight: 700;
+            margin-top: 16px;
+            margin-bottom: 12px;
+            color: #1e293b;
+        }
+        
+        .markdown-content h2 {
+            font-size: 1.3em;
+            font-weight: 700;
+            margin-top: 14px;
+            margin-bottom: 10px;
+            color: #334155;
+        }
+        
+        .markdown-content h3 {
+            font-size: 1.1em;
+            font-weight: 700;
+            margin-top: 12px;
+            margin-bottom: 8px;
+            color: #475569;
+        }
+        
+        .markdown-content ul,
+        .markdown-content ol {
+            margin: 8px 0;
+            padding-left: 20px;
+        }
+        
+        .markdown-content li {
+            margin: 4px 0;
+            line-height: 1.6;
+        }
+        
+        .markdown-content a {
+            color: #2563eb;
+            text-decoration: underline;
+            transition: color 0.2s;
+        }
+        
+        .markdown-content a:hover {
+            color: #1d4ed8;
+        }
+        
+        .markdown-content blockquote {
+            border-left: 4px solid #3b82f6;
+            padding-left: 16px;
+            padding-top: 8px;
+            padding-bottom: 8px;
+            margin: 8px 0;
+            background: #eff6ff;
+            font-style: italic;
+            color: #475569;
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            vertical-align: middle;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* 关键词卡片样式 */
+        .keyword-card {
+            display: inline-block;
+            background: linear-gradient(135deg, #fff5f5 0%, #fff 100%);
+            border: 2px solid #fbbf24;
+            border-radius: 12px;
+            padding: 12px 16px;
+            margin: 8px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .keyword-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(251,191,36,0.3);
+            border-color: #f59e0b;
+        }
+        
+        .keyword-card .word {
+            display: block;
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: #92400e;
+            margin-bottom: 4px;
+        }
+        
+        .keyword-card .pinyin {
+            display: block;
+            font-size: 0.875rem;
+            color: #f59e0b;
+            font-style: italic;
+            margin-bottom: 6px;
+        }
+        
+        .keyword-card .meaning {
+            display: block;
+            font-size: 0.95rem;
+            color: #475569;
+            line-height: 1.5;
+        }
+        
+        /* Ruby 标注样式（用于拼音） */
+        ruby {
+            ruby-position: over;
+        }
+        
+        rt {
+            font-size: 0.6em;
+            color: #f59e0b;
+            font-weight: normal;
+        }
+        
+        .poem-line {
+            margin: 8px 0;
+            line-height: 2.5;
+        }
+        
+        /* 显示模式切换按钮样式 */
+        .display-mode-btn {
+            background: white;
+            color: #6b7280;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 8px 16px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        
+        .display-mode-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            border-color: #3b82f6;
+            color: #3b82f6;
+        }
+        
+        .display-mode-btn.active {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+            border-color: #3b82f6;
+            box-shadow: 0 4px 8px rgba(59,130,246,0.3);
+        }
+        
+        .display-mode-btn:active {
+            transform: translateY(0);
+        }
+        
+        /* 拼音标注样式 - 增强版 */
+        .pinyin-char {
+            display: inline-block;
+            position: relative;
+            margin: 0 8px;  /* 增加左右间距 */
+            padding-top: 1.2em;  /* 减小拼音与汉字的距离 */
+        }
+        
+        .pinyin-char .pinyin-text {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.48em;  /* 稍微增大拼音字号 */
+            color: #1f2937;  /* 深灰黑色 */
+            white-space: nowrap;
+            font-weight: 400;  /* 正常字重 */
+            font-family: 'SimSun', '宋体', serif;  /* 改为宋体 */
+            letter-spacing: 0.3px;  /* 减小拼音字母间距 */
+        }
+        
+        /* 专名线样式（人名、地名） */
+        .pinyin-char.proper-name {
+            border-bottom: 2px solid #ef4444;
+            padding-bottom: 4px;
+        }
+        
+        .pinyin-char.proper-name .pinyin-text {
+            color: #dc2626;  /* 专名用红色 */
+            font-weight: 600;
+        }
+        
+        /* 拼音行样式 */
+        .pinyin-poem-line {
+            line-height: 2.8 !important;  /* 减小行高，让拼音离汉字更近 */
+            margin: 8px 0 !important;  /* 减小行间距 */
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        /* 隐藏类 */
+        .hidden {
+            display: none !important;
+        }
+        
+        /* 加载消息特殊样式 */
+        .loading-message {
+            background: #e3f2fd !important;
+            border-left: 3px solid #2196f3;
+        }
+        
+        .action-button {
+            transition: all 0.2s ease;
+        }
+        
+        .action-button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        .poem-meta {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .difficulty-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .difficulty-1 { background: #10b981; color: white; }
+        .difficulty-2 { background: #3b82f6; color: white; }
+        .difficulty-3 { background: #f59e0b; color: white; }
+        .difficulty-4 { background: #ef4444; color: white; }
+        .difficulty-5 { background: #8b5cf6; color: white; }
+        
+        /* 视频播放器样式 */
+        #poemVideo {
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .video-fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* 音频播放器和录音控制样式 */
+        #poemAudioPlayer {
+            margin-top: 12px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .recording-pulse {
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        /* 评分结果动画 */
+        #pronunciationResult {
+            animation: slideIn 0.3s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* 星级评分动画 */
+        #starRating i {
+            display: inline-block;
+            animation: starPop 0.3s ease-out;
+        }
+        
+        #starRating i:nth-child(1) { animation-delay: 0s; }
+        #starRating i:nth-child(2) { animation-delay: 0.1s; }
+        #starRating i:nth-child(3) { animation-delay: 0.2s; }
+        #starRating i:nth-child(4) { animation-delay: 0.3s; }
+        #starRating i:nth-child(5) { animation-delay: 0.4s; }
+        
+        @keyframes starPop {
+            0% {
+                transform: scale(0);
+                opacity: 0;
+            }
+            50% {
+                transform: scale(1.2);
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+        
+        /* 字词高亮悬停效果 */
+        #wordHighlights span {
+            cursor: pointer;
+            transition: all 0.2s ease;
+            padding: 2px 4px;
+            border-radius: 4px;
+        }
+        
+        #wordHighlights span:hover {
+            background-color: rgba(0,0,0,0.05);
+            transform: scale(1.1);
+        }
+        
+        /* 录音按钮动画 */
+        #stopRecordBtn {
+            animation: recordingBlink 1s ease-in-out infinite;
+        }
+        
+        @keyframes recordingBlink {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            50% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- 导航栏 -->
+    <nav class="bg-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-full px-4">
+            <div class="flex justify-between items-center py-4">
+                <div class="flex items-center space-x-4">
+                    <a href="/poems" class="text-gray-600 hover:text-blue-600 transition-colors">
+                        <i class="fas fa-arrow-left mr-1"></i>返回古诗列表
+                    </a>
+                    <h1 class="text-xl font-bold text-gray-800" id="poemTitle">
+                        <i class="fas fa-book-open text-blue-600 mr-2"></i>
+                        古诗学习
+                    </h1>
+                </div>
+                
+                <div class="flex items-center space-x-4">
+                    <button onclick="toggleFullscreen()" class="text-gray-600 hover:text-blue-600 transition-colors">
+                        <i class="fas fa-expand mr-1"></i>全屏
+                    </button>
+                    <div id="userInfo" class="hidden">
+                        <span id="username" class="mr-4 text-gray-700"></span>
+                        <a href="/dashboard" class="text-blue-600 hover:text-blue-800 mr-4">
+                            <i class="fas fa-chart-line mr-1"></i>仪表板
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 可调整大小的主容器 -->
+    <div class="resizable-container">
+        <!-- 左侧古诗面板 -->
+        <div class="poem-panel" id="poemPanel" style="width: 60%;">
+            <!-- 古诗信息卡片 -->
+            <div class="poem-meta" id="poemMeta">
+                <div class="flex justify-between items-start mb-4">
+                    <div>
+                        <h1 class="text-3xl font-bold mb-2" id="poemTitleDisplay">🔄 加载中...</h1>
+                        <p class="text-lg opacity-90" id="poemAuthor">正在获取古诗信息...</p>
+                    </div>
+                    <div class="text-right">
+                        <div class="difficulty-badge difficulty-1" id="difficultyBadge">
+                            <i class="fas fa-star mr-1"></i>难度1
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 操作按钮 -->
+                <div class="flex flex-wrap gap-3">
+                    <button onclick="playTTS()" class="action-button bg-white bg-opacity-20 text-white px-4 py-2 rounded-lg hover:bg-opacity-30 transition-colors">
+                        <i class="fas fa-volume-up mr-2"></i>朗读
+                    </button>
+                    <button onclick="playVideo()" class="action-button bg-white bg-opacity-20 text-white px-4 py-2 rounded-lg hover:bg-opacity-30 transition-colors">
+                        <i class="fas fa-play mr-2"></i>意境视频
+                    </button>
+                    <button onclick="showExercises()" class="action-button bg-white bg-opacity-20 text-white px-4 py-2 rounded-lg hover:bg-opacity-30 transition-colors">
+                        <i class="fas fa-pencil-alt mr-2"></i>练习题
+                    </button>
+                    <button onclick="markAsLearned()" class="action-button bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors">
+                        <i class="fas fa-check mr-2"></i>标记已学
+                    </button>
+                </div>
+            </div>
+
+            <!-- 视频播放器 -->
+            <div class="bg-white rounded-xl p-6 shadow-lg mb-6" id="videoPlayerContainer" style="display: none;">
+                <h3 class="text-lg font-bold mb-4 text-gray-800">
+                    <i class="fas fa-video mr-2 text-purple-600"></i>古诗视频
+                </h3>
+                <div class="relative bg-black rounded-lg overflow-hidden" style="aspect-ratio: 16/9;">
+                    <video 
+                        id="poemVideo" 
+                        class="w-full h-full"
+                        controls
+                        preload="metadata"
+                        poster=""
+                        style="object-fit: contain;">
+                        <source id="videoSource" src="" type="video/mp4">
+                        您的浏览器不支持视频播放。
+                    </video>
+                </div>
+                <div class="mt-4 flex items-center justify-between">
+                    <button onclick="closeVideo()" class="text-gray-600 hover:text-blue-600 transition-colors">
+                        <i class="fas fa-times-circle mr-1"></i>关闭视频
+                    </button>
+                    <div class="text-sm text-gray-500" id="videoStatus">
+                        准备播放
+                    </div>
+                </div>
+            </div>
+
+            <!-- 古诗内容区域 -->
+            
+            <!-- 1. 古诗原文卡片（带拼音） -->
+            <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-8 shadow-lg mb-6 border border-blue-100">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-2xl font-bold text-gray-800">
+                        <i class="fas fa-feather-alt mr-3 text-blue-600"></i>诗歌原文
+                    </h3>
+                    
+                    <!-- 三个切换按钮 -->
+                    <div class="flex gap-2">
+                        <button onclick="switchDisplayMode('chinese')" id="btnChinese" class="display-mode-btn active">
+                            <i class="fas fa-language mr-1"></i>中
+                        </button>
+                        <button onclick="switchDisplayMode('pinyin')" id="btnPinyin" class="display-mode-btn">
+                            <i class="fas fa-spell-check mr-1"></i>拼
+                        </button>
+                        <button onclick="switchDisplayMode('english')" id="btnEnglish" class="display-mode-btn">
+                            <i class="fas fa-globe mr-1"></i>英
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- 原文内容 -->
+                <div class="poem-content text-center mb-6 relative">
+                    <!-- 纯中文版本 -->
+                    <div id="poemContentChinese" class="text-3xl leading-loose font-serif text-gray-800" style="font-family: 'KaiTi', '楷体', serif;">
+                        🔄 正在加载古诗内容...
+                    </div>
+                    
+                    <!-- 带拼音版本（默认隐藏） -->
+                    <div id="poemContentPinyin" class="text-3xl leading-relaxed hidden" style="font-family: 'KaiTi', '楷体', serif;">
+                        🔄 正在加载带拼音内容...
+                    </div>
+                    
+                    <!-- 英文翻译版本（默认隐藏） -->
+                    <div id="poemContentEnglish" class="text-xl leading-relaxed hidden text-gray-700" style="font-family: 'Georgia', serif; font-style: italic;">
+                        🔄 Loading English translation...
+                    </div>
+                </div>
+                
+                <!-- 朗读与跟读按钮区域 -->
+                <div class="mt-6 space-y-4">
+                    <!-- 朗读控制区 -->
+                    <div class="bg-white rounded-xl p-4 shadow-md border border-blue-200">
+                        <div class="flex items-center justify-between mb-3">
+                            <h4 class="font-bold text-gray-800 flex items-center">
+                                <i class="fas fa-volume-up mr-2 text-blue-600"></i>朗读
+                            </h4>
+                            <button id="playAudioBtn" onclick="playPoemAudio()" class="bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-6 py-2 rounded-full hover:shadow-lg transition-all transform hover:scale-105">
+                                <i class="fas fa-play mr-2"></i>播放
+                            </button>
+                        </div>
+                        
+                        <!-- 音频选项 -->
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="text-xs text-gray-600 block mb-1">声音</label>
+                                <select id="voiceGender" class="w-full px-3 py-2 text-sm border rounded-lg focus:outline-none focus:border-blue-500">
+                                    <option value="male_standard">男声（标准）</option>
+                                    <option value="female_standard" selected>女声（标准）</option>
+                                    <option value="male_energetic">男声（活力）</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="text-xs text-gray-600 block mb-1">语速</label>
+                                <select id="voiceSpeed" class="w-full px-3 py-2 text-sm border rounded-lg focus:outline-none focus:border-blue-500">
+                                    <option value="slow">慢速</option>
+                                    <option value="normal" selected>常速</option>
+                                    <option value="fast">快速</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <!-- 音频播放器（隐藏） -->
+                        <audio id="poemAudioPlayer" class="w-full mt-3" controls style="display: none;"></audio>
+                    </div>
+                    
+                    <!-- 跟读控制区 -->
+                    <div class="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-4 shadow-md border border-green-200">
+                        <div class="flex items-center justify-between mb-3">
+                            <h4 class="font-bold text-gray-800 flex items-center">
+                                <i class="fas fa-microphone mr-2 text-green-600"></i>跟读练习
+                            </h4>
+                            <div class="flex gap-2">
+                                <button id="startRecordBtn" onclick="startRecording()" class="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-6 py-2 rounded-full hover:shadow-lg transition-all transform hover:scale-105">
+                                    <i class="fas fa-microphone mr-2"></i>开始录音
+                                </button>
+                                <button id="stopRecordBtn" onclick="stopRecording()" class="bg-red-500 text-white px-6 py-2 rounded-full hover:shadow-lg transition-all transform hover:scale-105" style="display: none;">
+                                    <i class="fas fa-stop mr-2"></i>停止
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- 录音状态提示 -->
+                        <div id="recordingStatus" class="text-sm text-gray-600 mb-2" style="display: none;">
+                            <i class="fas fa-circle text-red-500 animate-pulse mr-2"></i>正在录音中...
+                        </div>
+                        
+                        <!-- 评分结果区域 -->
+                        <div id="pronunciationResult" class="mt-3" style="display: none;">
+                            <div class="bg-white rounded-lg p-4 border border-green-300">
+                                <h5 class="font-bold text-gray-800 mb-3 flex items-center">
+                                    <i class="fas fa-chart-bar mr-2 text-green-600"></i>发音评分
+                                </h5>
+                                
+                                <!-- 总分显示 -->
+                                <div class="text-center mb-4">
+                                    <div class="text-5xl font-bold text-green-600 mb-2" id="overallScore">0</div>
+                                    <div class="flex justify-center items-center gap-1" id="starRating">
+                                        <!-- 星级评分将动态生成 -->
+                                    </div>
+                                </div>
+                                
+                                <!-- 详细评分 -->
+                                <div class="grid grid-cols-3 gap-3 mb-4">
+                                    <div class="text-center">
+                                        <div class="text-xs text-gray-600 mb-1">准确度</div>
+                                        <div class="text-2xl font-bold text-blue-600" id="accuracyScore">0</div>
+                                    </div>
+                                    <div class="text-center">
+                                        <div class="text-xs text-gray-600 mb-1">流利度</div>
+                                        <div class="text-2xl font-bold text-purple-600" id="fluencyScore">0</div>
+                                    </div>
+                                    <div class="text-center">
+                                        <div class="text-xs text-gray-600 mb-1">语调</div>
+                                        <div class="text-2xl font-bold text-orange-600" id="intonationScore">0</div>
+                                    </div>
+                                </div>
+                                
+                                <!-- 发音问题高亮 -->
+                                <div id="wordFeedback" class="mt-3">
+                                    <div class="text-sm font-semibold text-gray-700 mb-2">发音分析：</div>
+                                    <div id="wordHighlights" class="text-lg leading-relaxed" style="font-family: 'KaiTi', '楷体', serif;">
+                                        <!-- 字词高亮将动态生成 -->
+                                    </div>
+                                </div>
+                                
+                                <!-- 建议 -->
+                                <div id="suggestions" class="mt-3 p-3 bg-blue-50 rounded-lg">
+                                    <div class="text-sm text-gray-700">
+                                        <i class="fas fa-lightbulb text-yellow-500 mr-2"></i>
+                                        <span id="suggestionText">继续练习，你会更好！</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. 白话解释卡片 -->
+            <div class="bg-white rounded-2xl p-6 shadow-lg mb-6 border-l-4 border-green-500">
+                <h3 class="text-xl font-bold mb-4 text-gray-800 flex items-center">
+                    <i class="fas fa-comments mr-3 text-green-600"></i>白话解释
+                </h3>
+                <div class="text-gray-700 leading-relaxed space-y-3" id="poemTranslation">
+                    <p class="text-gray-400">加载中...</p>
+                </div>
+            </div>
+
+            <!-- 3. 关键词解释卡片 -->
+            <div class="bg-white rounded-2xl p-6 shadow-lg mb-6">
+                <h3 class="text-xl font-bold mb-5 text-gray-800 flex items-center">
+                    <i class="fas fa-key mr-3 text-amber-500"></i>关键词解释
+                </h3>
+                <div id="poemAnnotations" class="space-y-4">
+                    <p class="text-gray-400">加载中...</p>
+                </div>
+            </div>
+
+            <!-- 4. 英文注释 -->
+            <div class="bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl p-6 shadow-lg mb-6 border border-purple-100">
+                <h3 class="text-xl font-bold mb-4 text-gray-800 flex items-center">
+                    <i class="fas fa-language mr-3 text-purple-600"></i>English Notes
+                </h3>
+                <div class="text-gray-700 leading-relaxed" id="poemEnglishNotes">
+                    <p class="text-gray-400">加载中...</p>
+                </div>
+            </div>
+        </div>
+        <!-- 结束 poem-panel -->
+
+        <!-- 拖拽分隔条 -->
+        <div class="resizer" id="resizer"></div>
+
+        <!-- 右侧AI问答面板 -->
+        <div class="ai-panel" id="aiPanel" style="width: 40%;">
+            <div class="mb-4">
+                <h3 class="text-lg font-bold text-gray-800 mb-2">
+                    <i class="fas fa-robot mr-2 text-blue-600"></i>AI学习助手
+                </h3>
+                <p class="text-sm text-gray-600">选择问答类型或直接提问</p>
+            </div>
+
+            <!-- AI设置 -->
+            <div class="bg-blue-50 rounded-lg p-3 mb-4">
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="text-xs text-gray-600 block mb-1">HSK等级</label>
+                        <select id="hskLevel" class="w-full px-2 py-1 text-sm border rounded">
+                            <option value="HSK1">HSK 1 - 入门</option>
+                            <option value="HSK2">HSK 2 - 初级</option>
+                            <option value="HSK3" selected>HSK 3 - 中级</option>
+                            <option value="HSK4">HSK 4 - 中高级</option>
+                            <option value="HSK5">HSK 5 - 高级</option>
+                            <option value="HSK6">HSK 6 - 精通</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-xs text-gray-600 block mb-1">母语</label>
+                        <select id="userLanguage" class="w-full px-2 py-1 text-sm border rounded">
+                            <option value="en">English</option>
+                            <option value="es">Español</option>
+                            <option value="fr">Français</option>
+                            <option value="de">Deutsch</option>
+                            <option value="ja">日本語</option>
+                            <option value="ko">한국어</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI问答类型按钮 -->
+            <div class="grid grid-cols-2 gap-2 mb-4">
+                <button onclick="askAI('word-analysis')" class="bg-blue-500 text-white px-3 py-2 rounded text-sm hover:bg-blue-600 transition-colors">
+                    <i class="fas fa-search mr-1"></i>字词解析
+                </button>
+                <button onclick="askAI('background-explanation')" class="bg-green-500 text-white px-3 py-2 rounded text-sm hover:bg-green-600 transition-colors">
+                    <i class="fas fa-history mr-1"></i>背景介绍
+                </button>
+                <button onclick="askAI('artistic-analysis')" class="bg-purple-500 text-white px-3 py-2 rounded text-sm hover:bg-purple-600 transition-colors">
+                    <i class="fas fa-palette mr-1"></i>意境赏析
+                </button>
+                <button onclick="clearChat()" class="bg-gray-500 text-white px-3 py-2 rounded text-sm hover:bg-gray-600 transition-colors">
+                    <i class="fas fa-trash mr-1"></i>清空对话
+                </button>
+            </div>
+
+            <!-- 聊天容器 -->
+            <div class="chat-container">
+                <div class="chat-messages" id="chatMessages">
+                    <div class="ai-message">
+                        <div class="flex items-start">
+                            <i class="fas fa-robot text-blue-600 mr-2 mt-1"></i>
+                            <div>
+                                <p>你好！我是你的AI学习助手。你可以：</p>
+                                <ul class="mt-2 text-sm">
+                                    <li>• 点击上方按钮进行专项问答</li>
+                                    <li>• 直接输入问题自由提问</li>
+                                    <li>• 询问字词含义、创作背景等</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 输入区域 -->
+                <div>
+                    <div class="flex space-x-2 mb-1">
+                        <input type="text" id="chatInput" placeholder="输入你的问题..." 
+                               class="flex-1 px-3 py-2 border rounded-lg focus:outline-none focus:border-blue-500">
+                        <button onclick="sendMessage()" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                    <p class="text-xs text-gray-500 text-center">
+                        💡 尝试用中文关键词提问，学习效果更好哦！
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 全局变量
+        let authToken = localStorage.getItem('authToken');
+        let currentUser = null;
+        let currentPoem = null;
+        const API_BASE = '/api';
+        
+        // 学习时长追踪变量
+        let studyStartTime = Date.now();
+        let studyDuration = 0;
+        let trackingInterval = null;
+        
+        // ============= 多模态数据追踪系统 =============
+        let currentSessionId = null;
+        let eventQueue = [];
+        let lastMouseMoveTime = 0;
+        let videoWatchStart = null;
+        let mouseMoveSampleRate = 1000; // 鼠标移动采样率：1秒
+        
+        // 获取设备信息
+        function getDeviceInfo() {
+            return {
+                userAgent: navigator.userAgent,
+                platform: navigator.platform,
+                language: navigator.language,
+                screenWidth: window.screen.width,
+                screenHeight: window.screen.height,
+                viewportWidth: window.innerWidth,
+                viewportHeight: window.innerHeight,
+                devicePixelRatio: window.devicePixelRatio,
+                timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
+            };
+        }
+        
+        // 统一的事件追踪函数
+        async function trackEvent(eventType, eventTarget, eventData = {}, useQueue = true) {
+            if (!authToken || !currentSessionId) return;
+            
+            const event = {
+                event_type: eventType,
+                event_target: eventTarget,
+                timestamp: new Date().toISOString(),
+                event_data: eventData,
+                page_context: {
+                    url: window.location.href,
+                    poem_id: poemId,
+                    scroll_position: window.scrollY,
+                    viewport: {
+                        width: window.innerWidth,
+                        height: window.innerHeight
+                    }
+                },
+                screen_position: eventData.screenPosition || null
+            };
+            
+            if (useQueue) {
+                // 添加到队列，批量发送
+                eventQueue.push(event);
+                console.log(`📝 事件已加入队列 [${eventType}]:`, event);
+                
+                // 队列达到10个事件或30秒后批量发送
+                if (eventQueue.length >= 10) {
+                    await flushEventQueue();
+                }
+            } else {
+                // 立即发送单个事件
+                try {
+                    const response = await fetch(`${API_BASE}/tracking/event`, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${authToken}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            session_id: currentSessionId,
+                            ...event
+                        })
+                    });
+                    
+                    if (response.ok) {
+                        console.log(`✅ 事件已发送 [${eventType}]`);
+                    }
+                } catch (error) {
+                    console.error(`❌ 事件发送失败 [${eventType}]:`, error);
+                }
+            }
+        }
+        
+        // 批量发送事件队列
+        async function flushEventQueue() {
+            if (eventQueue.length === 0 || !authToken || !currentSessionId) return;
+            
+            const eventsToSend = [...eventQueue];
+            eventQueue = [];
+            
+            try {
+                const response = await fetch(`${API_BASE}/tracking/events/batch`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        session_id: currentSessionId,
+                        events: eventsToSend
+                    })
+                });
+                
+                if (response.ok) {
+                    console.log(`✅ 批量发送 ${eventsToSend.length} 个事件成功`);
+                } else {
+                    console.error('❌ 批量发送事件失败');
+                    // 失败的事件重新加入队列
+                    eventQueue = [...eventsToSend, ...eventQueue];
+                }
+            } catch (error) {
+                console.error('❌ 批量发送事件异常:', error);
+                // 网络错误，重新加入队列
+                eventQueue = [...eventsToSend, ...eventQueue];
+            }
+        }
+        
+        // 定时批量发送队列（每30秒）
+        setInterval(() => {
+            if (eventQueue.length > 0) {
+                console.log(`⏰ 定时发送队列，当前队列大小: ${eventQueue.length}`);
+                flushEventQueue();
+            }
+        }, 30000);
+        
+        // 开始新会话
+        async function startTrackingSession() {
+            if (!authToken || !poemId) return;
+            
+            try {
+                const response = await fetch(`${API_BASE}/tracking/session/start`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        poem_id: poemId,
+                        device_info: getDeviceInfo()
+                    })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    currentSessionId = data.session_id;
+                    console.log('🎬 追踪会话已启动，Session ID:', currentSessionId);
+                    
+                    // 记录页面加载事件
+                    trackEvent('page_load', 'poem_study_page', {
+                        loadTime: performance.now(),
+                        referrer: document.referrer
+                    });
+                }
+            } catch (error) {
+                console.error('❌ 启动追踪会话失败:', error);
+            }
+        }
+        
+        // 结束会话
+        async function endTrackingSession() {
+            if (!authToken || !currentSessionId) return;
+            
+            // 先发送所有待处理事件
+            await flushEventQueue();
+            
+            const sessionDuration = Math.floor((Date.now() - studyStartTime) / 1000);
+            
+            try {
+                await fetch(`${API_BASE}/tracking/session/${currentSessionId}/end`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        duration_seconds: sessionDuration,
+                        is_completed: true
+                    })
+                });
+                console.log('🏁 追踪会话已结束，总时长:', sessionDuration, '秒');
+            } catch (error) {
+                console.error('❌ 结束追踪会话失败:', error);
+            }
+        }
+        
+        // 鼠标移动追踪（节流：1秒采样一次）
+        function handleMouseMove(event) {
+            const now = Date.now();
+            if (now - lastMouseMoveTime < mouseMoveSampleRate) return;
+            
+            lastMouseMoveTime = now;
+            trackEvent('mouse_move', 'document', {
+                screenPosition: {
+                    x: event.clientX,
+                    y: event.clientY,
+                    pageX: event.pageX,
+                    pageY: event.pageY
+                }
+            });
+        }
+        
+        // 滚动追踪
+        let lastScrollTime = 0;
+        function handleScroll() {
+            const now = Date.now();
+            if (now - lastScrollTime < 1000) return; // 节流：1秒
+            
+            lastScrollTime = now;
+            const scrollDepth = Math.round((window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100);
+            
+            trackEvent('scroll', 'window', {
+                scrollY: window.scrollY,
+                scrollDepth: scrollDepth + '%',
+                maxScroll: document.body.scrollHeight
+            });
+        }
+        
+        // 视频播放追踪
+        function trackVideoPlay(videoElement) {
+            videoWatchStart = Date.now();
+            trackEvent('video_play', 'poem_video', {
+                currentTime: videoElement.currentTime,
+                duration: videoElement.duration,
+                volume: videoElement.volume
+            }, false); // 立即发送
+            
+            // 同时更新会话的视频数据
+            if (currentSessionId) {
+                fetch(`${API_BASE}/tracking/session/${currentSessionId}/video-engagement`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        playback_event: {
+                            type: 'play',
+                            timestamp: new Date().toISOString(),
+                            currentTime: videoElement.currentTime
+                        }
+                    })
+                }).catch(err => console.error('视频追踪失败:', err));
+            }
+        }
+        
+        function trackVideoPause(videoElement) {
+            const watchDuration = videoWatchStart ? (Date.now() - videoWatchStart) / 1000 : 0;
+            
+            trackEvent('video_pause', 'poem_video', {
+                currentTime: videoElement.currentTime,
+                duration: videoElement.duration,
+                watchDuration: watchDuration
+            }, false); // 立即发送
+            
+            if (currentSessionId) {
+                fetch(`${API_BASE}/tracking/session/${currentSessionId}/video-engagement`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        playback_event: {
+                            type: 'pause',
+                            timestamp: new Date().toISOString(),
+                            currentTime: videoElement.currentTime
+                        },
+                        watch_segment: {
+                            start: Math.max(0, videoElement.currentTime - watchDuration),
+                            end: videoElement.currentTime,
+                            duration: watchDuration
+                        }
+                    })
+                }).catch(err => console.error('视频追踪失败:', err));
+            }
+            
+            videoWatchStart = null;
+        }
+        
+        function trackVideoSeek(videoElement) {
+            trackEvent('video_seek', 'poem_video', {
+                currentTime: videoElement.currentTime,
+                duration: videoElement.duration
+            });
+        }
+        
+        function trackVideoEnded(videoElement) {
+            trackEvent('video_ended', 'poem_video', {
+                duration: videoElement.duration,
+                completionRate: '100%'
+            }, false); // 立即发送
+        }
+        // ============= 多模态数据追踪系统结束 =============
+        
+        // 获取URL中的古诗ID
+        const poemId = window.location.pathname.split('/').pop();
+        console.log('URL路径:', window.location.pathname);
+        console.log('解析的古诗ID:', poemId);
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            if (authToken) {
+                checkAuthStatus();
+                startTrackingSession(); // 启动多模态追踪会话
+            }
+            loadPoem();
+            setupResizer();
+            setupEventListeners();
+            startStudyTracking(); // 开始追踪学习时长
+            
+            // 添加全局事件监听器
+            document.addEventListener('mousemove', handleMouseMove);
+            window.addEventListener('scroll', handleScroll);
+            
+            // 监听HSK等级和母语变化，自动保存到服务器
+            const hskSelect = document.getElementById('hskLevel');
+            const langSelect = document.getElementById('userLanguage');
+            
+            if (hskSelect) {
+                hskSelect.addEventListener('change', saveUserSettings);
+            }
+            if (langSelect) {
+                langSelect.addEventListener('change', saveUserSettings);
+            }
+        });
+        
+        // 开始追踪学习时长
+        function startStudyTracking() {
+            studyStartTime = Date.now();
+            
+            // 每30秒上报一次学习时长
+            trackingInterval = setInterval(() => {
+                const currentDuration = Math.floor((Date.now() - studyStartTime) / 1000);
+                if (currentDuration > 0 && authToken && poemId) {
+                    trackStudyTime(currentDuration);
+                    studyStartTime = Date.now(); // 重置计时器
+                }
+            }, 30000); // 30秒上报一次
+            
+            // 页面关闭前保存学习时长
+            window.addEventListener('beforeunload', function() {
+                const finalDuration = Math.floor((Date.now() - studyStartTime) / 1000);
+                if (finalDuration > 0 && authToken && poemId) {
+                    // 使用 sendBeacon 确保数据能发送
+                    const data = JSON.stringify({
+                        reading_time: finalDuration
+                    });
+                    navigator.sendBeacon(
+                        `${API_BASE}/poems/${poemId}/track-reading`,
+                        new Blob([data], { type: 'application/json' })
+                    );
+                }
+                if (trackingInterval) {
+                    clearInterval(trackingInterval);
+                }
+                
+                // 结束追踪会话（使用 sendBeacon 确保数据发送）
+                if (currentSessionId && authToken) {
+                    const sessionData = JSON.stringify({
+                        duration_seconds: finalDuration,
+                        is_completed: true
+                    });
+                    navigator.sendBeacon(
+                        `${API_BASE}/tracking/session/${currentSessionId}/end`,
+                        new Blob([sessionData], { type: 'application/json' })
+                    );
+                    
+                    // 发送剩余的事件队列
+                    if (eventQueue.length > 0) {
+                        const queueData = JSON.stringify({
+                            session_id: currentSessionId,
+                            events: eventQueue
+                        });
+                        navigator.sendBeacon(
+                            `${API_BASE}/tracking/events/batch`,
+                            new Blob([queueData], { type: 'application/json' })
+                        );
+                    }
+                }
+            });
+        }
+        
+        // 追踪学习时长
+        async function trackStudyTime(seconds) {
+            try {
+                await fetch(`${API_BASE}/poems/${poemId}/track-reading`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        reading_time: seconds
+                    })
+                });
+                console.log(`📊 已追踪学习时长: ${seconds}秒`);
+            } catch (error) {
+                console.error('追踪学习时长失败:', error);
+            }
+        }
+
+        // 设置事件监听器
+        function setupEventListeners() {
+            document.getElementById('chatInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    sendMessage();
+                }
+            });
+        }
+
+        // 检查认证状态
+        async function checkAuthStatus() {
+            try {
+                const response = await fetch(`${API_BASE}/auth/profile`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                
+                if (response.ok) {
+                    currentUser = await response.json();
+                    updateUserUI();
+                    
+                    // 如果用户信息中有HSK等级和母语设置，同步到页面
+                    if (currentUser.user) {
+                        const userInfo = currentUser.user;
+                        if (userInfo.hsk_level) {
+                            document.getElementById('hskLevel').value = userInfo.hsk_level;
+                        }
+                        if (userInfo.native_language) {
+                            document.getElementById('userLanguage').value = userInfo.native_language;
+                        }
+                    }
+                } else {
+                    localStorage.removeItem('authToken');
+                    authToken = null;
+                }
+            } catch (error) {
+                console.error('认证检查失败:', error);
+            }
+        }
+
+        // 更新用户界面
+        function updateUserUI() {
+            const userInfo = document.getElementById('userInfo');
+            
+            if (currentUser && currentUser.user) {
+                document.getElementById('username').textContent = currentUser.user.username;
+                userInfo.classList.remove('hidden');
+            } else if (currentUser && currentUser.username) {
+                document.getElementById('username').textContent = currentUser.username;
+                userInfo.classList.remove('hidden');
+            }
+        }
+
+        // 加载古诗数据
+        async function loadPoem() {
+            try {
+                console.log('正在加载古诗ID:', poemId);
+                
+                // 检查poemId是否有效
+                if (!poemId || isNaN(poemId)) {
+                    console.error('无效的古诗ID:', poemId);
+                    showError('无效的古诗ID');
+                    return;
+                }
+                
+                const response = await fetch(`${API_BASE}/poems/${poemId}`);
+                const data = await response.json();
+                
+                console.log('API响应状态:', response.status);
+                console.log('API响应数据:', data);
+                
+                if (response.ok) {
+                    // 注意：API返回的数据结构是 {poem: {...}}
+                    currentPoem = data.poem || data;
+                    console.log('当前古诗数据:', currentPoem);
+                    
+                    if (currentPoem && currentPoem.title) {
+                        displayPoem();
+                        
+                        // 如果用户已登录，记录学习行为
+                        if (authToken) {
+                            startLearning();
+                        }
+                    } else {
+                        console.error('古诗数据为空或格式错误');
+                        showError('古诗数据格式错误');
+                    }
+                } else {
+                    console.error('API错误:', data);
+                    showError('加载古诗失败: ' + (data.error || '未知错误'));
+                }
+            } catch (error) {
+                console.error('加载古诗错误:', error);
+                showError('网络错误: ' + error.message);
+            }
+        }
+        
+        // 显示错误信息
+        function showError(message) {
+            document.getElementById('poemTitleDisplay').textContent = '❌ 加载失败';
+            document.getElementById('poemAuthor').textContent = message;
+            document.getElementById('poemContent').innerHTML = `
+                <div class="text-center py-8">
+                    <i class="fas fa-exclamation-triangle text-red-500 text-4xl mb-4"></i>
+                    <p class="text-red-600">${message}</p>
+                    <button onclick="window.location.href='/poems'" class="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+                        返回古诗列表
+                    </button>
+                </div>
+            `;
+        }
+
+        // 显示古诗内容
+        // 显示古诗内容
+        function displayPoem() {
+            if (!currentPoem) return;
+            
+            // 更新标题
+            document.getElementById('poemTitle').innerHTML = 
+                `<i class="fas fa-book-open text-blue-600 mr-2"></i>${currentPoem.title || '未知标题'}`;
+            document.getElementById('poemTitleDisplay').textContent = currentPoem.title || '未知标题';
+            document.getElementById('poemAuthor').textContent = `${currentPoem.author || '未知作者'} · ${currentPoem.dynasty || '未知朝代'}`;
+            
+            // 更新难度标签
+            const difficultyBadge = document.getElementById('difficultyBadge');
+            const difficulty = currentPoem.difficulty_level || 1;
+            difficultyBadge.className = `difficulty-badge difficulty-${difficulty}`;
+            difficultyBadge.innerHTML = `<i class="fas fa-star mr-1"></i>难度${difficulty}`;
+            
+            // 处理诗歌原文
+            const content = currentPoem.content || '暂无内容';
+            
+            // 1. 显示纯中文版本
+            const chineseDiv = document.getElementById('poemContentChinese');
+            const cleanContent = content.replace(/\s+/g, '');  // 移除所有空格
+            const poemLines = [];
+            let currentLine = '';
+            for (let char of cleanContent) {
+                currentLine += char;
+                if ('，。；！？、'.includes(char)) {
+                    poemLines.push(currentLine);
+                    currentLine = '';
+                }
+            }
+            if (currentLine) poemLines.push(currentLine);
+            
+            chineseDiv.innerHTML = poemLines
+                .map(line => `<div class="poem-line">${line}</div>`)
+                .join('');
+            
+            // 2. 生成带拼音版本（使用拼音注释生成）
+            generatePinyinVersion();
+            
+            // 3. 生成英文翻译版本
+            generateEnglishVersion();
+            
+            // 更新白话解释
+            document.getElementById('poemTranslation').textContent = 
+                currentPoem.translation || '暂无译文';
+            
+            // 更新英文注释
+            displayEnglishNotes();
+            
+            // 更新关键词注释
+            displayKeywords();
+        }
+        
+        // 生成带拼音的版本（智能添加专名线）
+        function generatePinyinVersion() {
+            const pinyinDiv = document.getElementById('poemContentPinyin');
+            const content = currentPoem.content || '';
+            const cleanContent = content.replace(/\s+/g, '');
+            
+            // 获取拼音映射（从annotations中）
+            let pinyinMap = {};
+            try {
+                let annotations = currentPoem.annotations;
+                if (typeof annotations === 'string') {
+                    annotations = JSON.parse(annotations);
+                }
+                
+                // 构建拼音映射
+                if (annotations && typeof annotations === 'object') {
+                    for (const [word, info] of Object.entries(annotations)) {
+                        let pinyin = '';
+                        if (typeof info === 'string') {
+                            // 尝试从字符串中提取拼音
+                            const match = info.match(/^([a-zāáǎàēéěèīíǐìōóǒòūúǔùüǖǘǚǜ\s]+)\s*[–-]/i);
+                            if (match) pinyin = match[1].trim();
+                        } else if (typeof info === 'object') {
+                            pinyin = info.pinyin || info.拼音 || '';
+                        }
+                        
+                        if (pinyin) {
+                            // 将词语拆分为单字和对应拼音
+                            const chars = Array.from(word);
+                            const pinyinParts = pinyin.split(/\s+/);
+                            chars.forEach((char, index) => {
+                                if (pinyinParts[index]) {
+                                    pinyinMap[char] = pinyinParts[index];
+                                }
+                            });
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('解析拼音失败:', error);
+            }
+            
+            // 识别专名（人名、地名）
+            const properNames = identifyProperNames(currentPoem.title, currentPoem.author);
+            
+            // 生成带拼音的HTML - 改进版，标点跟随在汉字后面
+            let html = '<div class="pinyin-poem-line">';
+            
+            for (let i = 0; i < cleanContent.length; i++) {
+                const char = cleanContent[i];
+                
+                // 跳过标点符号（它们已经被处理到前一个字上了）
+                if ('，。；！？、'.includes(char)) {
+                    continue;
+                }
+                
+                const pinyin = pinyinMap[char] || getPinyinFallback(char);
+                const isProperName = properNames.has(char);
+                const className = isProperName ? 'pinyin-char proper-name' : 'pinyin-char';
+                
+                // 检查下一个字符是否为标点
+                let punctuation = '';
+                let shouldBreakLine = false;
+                if (i + 1 < cleanContent.length && '，。；！？、'.includes(cleanContent[i + 1])) {
+                    punctuation = cleanContent[i + 1];
+                    shouldBreakLine = true;
+                }
+                
+                html += `<span class="${className}">
+                    <span class="pinyin-text">${pinyin}</span>
+                    ${char}<span style="font-size: 0.65em; position: relative; top: 0.3em; margin-left: 2px;">${punctuation}</span>
+                </span>`;
+                
+                // 如果有标点，换行
+                if (shouldBreakLine) {
+                    html += '</div><div class="pinyin-poem-line">';
+                }
+            }
+            html += '</div>';
+            
+            pinyinDiv.innerHTML = html;
+        }
+        // 识别专名（人名、地名）
+        function identifyProperNames(title, author) {
+            const properNames = new Set();
+            
+            // 常见人名
+            const commonNames = ['李白', '杜甫', '王维', '白居易', '孟浩然', '王之涣', '骆宾王', 
+                                 '李绅', '刘禹锡', '柳宗元', '孟郊', '贾岛'];
+            
+            // 常见地名
+            const commonPlaces = ['黄鹤楼', '庐山', '白帝城', '广陵', '扬州', '长安', '洛阳',
+                                  '江南', '关山', '天门', '鹤雀楼', '寒山', '枫桥'];
+            
+            // 添加作者名字
+            if (author) {
+                for (let char of author) {
+                    properNames.add(char);
+                }
+            }
+            
+            // 检查标题中的地名
+            for (let place of commonPlaces) {
+                if (title && title.includes(place)) {
+                    for (let char of place) {
+                        properNames.add(char);
+                    }
+                }
+            }
+            
+            return properNames;
+        }
+        
+        // 拼音备用方案（扩充拼音库）
+        function getPinyinFallback(char) {
+            const basicPinyin = {
+                // 常用字
+                '春': 'chūn', '晓': 'xiǎo', '眠': 'mián', '觉': 'jué', '处': 'chù',
+                '闻': 'wén', '啼': 'tí', '鸟': 'niǎo', '夜': 'yè', '来': 'lái',
+                '风': 'fēng', '雨': 'yǔ', '声': 'shēng', '花': 'huā', '落': 'luò',
+                '知': 'zhī', '多': 'duō', '少': 'shǎo', '床': 'chuáng', '前': 'qián',
+                '明': 'míng', '月': 'yuè', '光': 'guāng', '疑': 'yí', '地': 'dì',
+                '霜': 'shuāng', '举': 'jǔ', '头': 'tóu', '望': 'wàng', '低': 'dī',
+                '思': 'sī', '故': 'gù', '乡': 'xiāng', '白': 'bái', '日': 'rì',
+                '依': 'yī', '山': 'shān', '尽': 'jìn', '黄': 'huáng', '河': 'hé',
+                '入': 'rù', '海': 'hǎi', '流': 'liú', '欲': 'yù', '穷': 'qióng',
+                '千': 'qiān', '里': 'lǐ', '目': 'mù', '更': 'gèng', '上': 'shàng',
+                '一': 'yī', '层': 'céng', '楼': 'lóu', '鹅': 'é', '曲': 'qū',
+                '项': 'xiàng', '向': 'xiàng', '天': 'tiān', '歌': 'gē', '毛': 'máo',
+                '浮': 'fú', '绿': 'lǜ', '水': 'shuǐ', '红': 'hóng', '掌': 'zhǎng',
+                '拨': 'bō', '清': 'qīng', '波': 'bō', 
+                // 悯农相关
+                '悯': 'mǐn', '农': 'nóng', '锄': 'chú', '禾': 'hé', '当': 'dāng', 
+                '午': 'wǔ', '汗': 'hàn', '滴': 'dī', '下': 'xià', '土': 'tǔ', 
+                '谁': 'shuí', '盘': 'pán', '中': 'zhōng', '餐': 'cān', '粒': 'lì', 
+                '皆': 'jiē', '辛': 'xīn', '苦': 'kǔ', '豆': 'dòu', '生': 'shēng',
+                '南': 'nán', '国': 'guó', '发': 'fā', '几': 'jǐ', '枝': 'zhī',
+                '愿': 'yuàn', '君': 'jūn', '采': 'cǎi', '撷': 'xié', '相': 'xiāng',
+                // 江雪
+                '江': 'jiāng', '雪': 'xuě', '孤': 'gū', '舟': 'zhōu', '蓑': 'suō',
+                '笠': 'lì', '翁': 'wēng', '独': 'dú', '钓': 'diào', '寒': 'hán',
+                // 望庐山瀑布
+                '庐': 'lú', '瀑': 'pù', '布': 'bù', '飞': 'fēi', '直': 'zhí',
+                '三': 'sān', '尺': 'chǐ', '是': 'shì', '银': 'yín', '挂': 'guà',
+                '川': 'chuān', '遥': 'yáo', '看': 'kàn', '照': 'zhào', '香': 'xiāng',
+                '炉': 'lú', '紫': 'zǐ', '烟': 'yān',
+                // 黄鹤楼送孟浩然之广陵
+                '故': 'gù', '人': 'rén', '西': 'xī', '辞': 'cí', '鹤': 'hè',
+                '烟': 'yān', '花': 'huā', '三': 'sān', '月': 'yuè', '扬': 'yáng',
+                '州': 'zhōu', '孤': 'gū', '帆': 'fān', '远': 'yuǎn', '影': 'yǐng',
+                '碧': 'bì', '空': 'kōng', '尽': 'jìn', '唯': 'wéi', '见': 'jiàn',
+                '长': 'cháng', '天': 'tiān', '际': 'jì',
+                // 早发白帝城
+                '朝': 'zhāo', '辞': 'cí', '帝': 'dì', '彩': 'cǎi', '云': 'yún',
+                '间': 'jiān', '还': 'huán', '陵': 'líng', '两': 'liǎng', '岸': 'àn',
+                '猿': 'yuán', '不': 'bù', '住': 'zhù', '轻': 'qīng',
+                '已': 'yǐ', '过': 'guò', '万': 'wàn', '重': 'chóng',
+                // 春夜喜雨
+                '好': 'hǎo', '知': 'zhī', '时': 'shí', '节': 'jié',
+                '乃': 'nǎi', '当': 'dāng', '潜': 'qián', '随': 'suí',
+                '润': 'rùn', '物': 'wù', '细': 'xì', '无': 'wú',
+                '野': 'yě', '径': 'jìng', '俱': 'jù', '黑': 'hēi',
+                '晓': 'xiǎo', '湿': 'shī', '锦': 'jǐn', '官': 'guān',
+                '城': 'chéng', '重': 'zhòng',
+                // 赋得古原草送别
+                '离': 'lí', '原': 'yuán', '草': 'cǎo', '岁': 'suì',
+                '枯': 'kū', '荣': 'róng', '野': 'yě', '火': 'huǒ',
+                '烧': 'shāo', '又': 'yòu', '吹': 'chuī',
+                '远': 'yuǎn', '侵': 'qīn', '古': 'gǔ', '道': 'dào',
+                '晴': 'qíng', '翠': 'cuì', '接': 'jiē', '荒': 'huāng',
+                '送': 'sòng', '王': 'wáng', '孙': 'sūn', '去': 'qù',
+                '萋': 'qī', '满': 'mǎn', '别': 'bié', '情': 'qíng',
+                // 其他补充
+                '得': 'dé', '之': 'zhī', '二': 'èr', '四': 'sì',
+                '五': 'wǔ', '六': 'liù', '七': 'qī', '八': 'bā',
+                '九': 'jiǔ', '十': 'shí', '百': 'bǎi', '大': 'dà',
+                '小': 'xiǎo', '子': 'zi', '其': 'qí', '也': 'yě',
+                '而': 'ér', '于': 'yú', '以': 'yǐ', '为': 'wéi',
+                '者': 'zhě', '有': 'yǒu', '所': 'suǒ', '用': 'yòng',
+                '此': 'cǐ', '如': 'rú', '何': 'hé', '言': 'yán',
+                '自': 'zì', '与': 'yǔ', '及': 'jí', '但': 'dàn',
+                '从': 'cóng', '得': 'dé', '可': 'kě', '他': 'tā',
+                '她': 'tā', '它': 'tā', '们': 'men', '个': 'gè',
+                '们': 'men', '着': 'zhe', '了': 'le', '的': 'de',
+                '种': 'zhǒng', '秋': 'qiū', '收': 'shōu', '颗': 'kē',
+                '粟': 'sù', '闲': 'xián', '田': 'tián', '夫': 'fū',
+                '犹': 'yóu', '饿': 'è', '死': 'sǐ', '万': 'wàn',
+                '径': 'jìng', '灭': 'miè', '鸟': 'niǎo', '踪': 'zōng',
+                // 相思、江雪等补充
+                '最': 'zuì', '绝': 'jué', '依': 'yī'
+            };
+            
+            return basicPinyin[char] || char;  // 如果找不到拼音，就显示原字
+        }
+        
+        // 生成英文翻译版本
+        function generateEnglishVersion() {
+            const englishDiv = document.getElementById('poemContentEnglish');
+            
+            // 扩充的行对行翻译映射
+            const englishTranslations = {
+                '春晓': {
+                    lines: [
+                        'Spring slumber, unaware of dawn,',
+                        'Everywhere I hear birds sing.',
+                        'Last night came wind and rain sounds,',
+                        'How many flowers have fallen, I wonder?'
+                    ]
+                },
+                '静夜思': {
+                    lines: [
+                        'Before my bed, the moon shines bright,',
+                        'Like frost upon the ground it seems.',
+                        'I raise my head to gaze at the bright moon,',
+                        'Then lower it, thinking of my hometown.'
+                    ]
+                },
+                '登鹤雀楼': {
+                    lines: [
+                        'The white sun rests on mountains bare,',
+                        'The Yellow River flows into the sea.',
+                        'To see a thousand miles away,',
+                        'Climb up one more floor, I say.'
+                    ]
+                },
+                '相思': {
+                    lines: [
+                        'Red beans grow in southern lands,',
+                        'In spring they sprout a few new branches.',
+                        'I wish you\'d gather more of them,',
+                        'For they best express the longing heart.'
+                    ]
+                },
+                '咏鹅': {
+                    lines: [
+                        'Goose, goose, goose,',
+                        'Curve your neck and sing to the sky.',
+                        'White feathers float on emerald water,',
+                        'Red feet paddle clear waves.'
+                    ]
+                },
+                '江雪': {
+                    lines: [
+                        'A thousand mountains, no bird in flight,',
+                        'Ten thousand paths, no human trace.',
+                        'A lone boat, old man in straw cape and hat,',
+                        'Fishing alone in the cold river snow.'
+                    ]
+                },
+                '望庐山瀑布': {
+                    lines: [
+                        'Sunlight shines on Incense Burner Peak, purple mist rising,',
+                        'From afar I see the waterfall hanging before the stream.',
+                        'Flying down three thousand feet it falls,',
+                        'Like the Milky Way cascading from the ninth heaven.'
+                    ]
+                },
+                '早发白帝城': {
+                    lines: [
+                        'At dawn I leave White Emperor in clouds so bright,',
+                        'A thousand miles to Jiangling, one day\'s flight.',
+                        'On both shores monkeys cry without end,',
+                        'My light boat has passed ten thousand mountains.'
+                    ]
+                },
+                '黄鹤楼送孟浩然之广陵': {
+                    lines: [
+                        'My old friend bids farewell at Yellow Crane Tower in the west,',
+                        'In misty flowers of March descends to Yangzhou.',
+                        'The lonely sail\'s distant shadow vanishes in azure emptiness,',
+                        'Only seeing the Yangtze River flowing to the sky\'s edge.'
+                    ]
+                },
+                '春夜喜雨': {
+                    lines: [
+                        'Good rain knows its season,',
+                        'Coming just when spring is born.',
+                        'Quietly following the night wind,',
+                        'It moistens things silently.',
+                        'Wild paths all clouds dark,',
+                        'River boat one lamp bright.',
+                        'At dawn we\'ll see the red wetness,',
+                        'Heavy flowers fill Jinguan City.'
+                    ]
+                },
+                '悯农（其一）': {
+                    lines: [
+                        'In spring one grain of millet is sown,',
+                        'In autumn ten thousand grains are grown.',
+                        'No idle fields throughout the land,',
+                        'Yet farmers still may starve to death.'
+                    ]
+                },
+                '悯农（其二）': {
+                    lines: [
+                        'Hoeing grain at noon in blazing sun,',
+                        'Sweat drips to the soil beneath the grain.',
+                        'Who knows that food on our plate,',
+                        'Every grain comes from bitter toil?'
+                    ]
+                },
+                '赋得古原草送别': {
+                    lines: [
+                        'Boundless grasses on the plain,',
+                        'Each year they wither and grow again.',
+                        'Wildfire cannot burn them utterly,',
+                        'Spring wind blows and they\'re reborn once more.',
+                        'Their fragrance overruns the ancient road,',
+                        'Their emerald freshness reaches the crumbling city.',
+                        'Again I see my friend depart,',
+                        'Luxuriant grasses full of parting grief.'
+                    ]
+                }
+            };
+            
+            const translation = englishTranslations[currentPoem.title];
+            
+            if (translation && translation.lines) {
+                englishDiv.innerHTML = translation.lines
+                    .map(line => `<div class="poem-line" style="margin: 12px 0;">${line}</div>`)
+                    .join('');
+            } else {
+                // 如果没有行对行翻译，显示白话翻译的提示
+                englishDiv.innerHTML = `
+                    <div class="text-center text-gray-500">
+                        <i class="fas fa-language mb-3" style="font-size: 2rem;"></i>
+                        <p class="mb-2">英文逐行翻译暂未添加</p>
+                        <p class="text-sm">请参考下方的英文注释（English Notes）</p>
+                    </div>
+                `;
+            }
+        }
+        
+        // 切换显示模式
+        let currentDisplayMode = 'chinese';
+        
+        function switchDisplayMode(mode) {
+            currentDisplayMode = mode;
+            
+            // 隐藏所有内容
+            document.getElementById('poemContentChinese').classList.add('hidden');
+            document.getElementById('poemContentPinyin').classList.add('hidden');
+            document.getElementById('poemContentEnglish').classList.add('hidden');
+            
+            // 更新按钮状态
+            document.getElementById('btnChinese').classList.remove('active');
+            document.getElementById('btnPinyin').classList.remove('active');
+            document.getElementById('btnEnglish').classList.remove('active');
+            
+            // 显示选中的内容
+            if (mode === 'chinese') {
+                document.getElementById('poemContentChinese').classList.remove('hidden');
+                document.getElementById('btnChinese').classList.add('active');
+            } else if (mode === 'pinyin') {
+                document.getElementById('poemContentPinyin').classList.remove('hidden');
+                document.getElementById('btnPinyin').classList.add('active');
+            } else if ( mode === 'english') {
+                document.getElementById('poemContentEnglish').classList.remove('hidden');
+                document.getElementById('btnEnglish').classList.add('active');
+            }
+            
+            // 保存用户偏好
+            localStorage.setItem('displayMode', mode);
+            
+            // 追踪事件
+            trackEvent('display_mode_change', 'poem_content', {
+                mode: mode,
+                poem_id: poemId
+            });
+        }
+        
+        // 页面加载时恢复显示模式偏好
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedMode = localStorage.getItem('displayMode') || 'chinese';
+            if (savedMode !== 'chinese') {
+                // 延迟切换，等待内容加载
+                setTimeout(() => {
+                    switchDisplayMode(savedMode);
+                }, 500);
+            }
+        });
+        
+        // 显示英文注释
+        function displayEnglishNotes() {
+            const notesDiv = document.getElementById('poemEnglishNotes');
+            
+            // 英文注释可能在 english_notes 或 analysis 字段中
+            let englishNotes = currentPoem.english_notes || currentPoem.analysis || '';
+            
+            if (!englishNotes) {
+                notesDiv.innerHTML = '<p class="text-gray-400 italic">No English notes available</p>';
+                return;
+            }
+            
+            // 将换行符转换为段落
+            const paragraphs = englishNotes.split('\n').filter(p => p.trim());
+            const html = paragraphs.map(p => `<p class="mb-3">${p}</p>`).join('');
+            
+            notesDiv.innerHTML = html;
+        }
+        
+        // 显示关键词注释
+        function displayKeywords() {
+            const keywordsDiv = document.getElementById('poemAnnotations');
+            
+            try {
+                let annotations = currentPoem.annotations;
+                
+                // 如果annotations是字符串，尝试解析JSON
+                if (typeof annotations === 'string') {
+                    annotations = JSON.parse(annotations);
+                }
+                
+                // 如果annotations是对象且不为空
+                if (annotations && typeof annotations === 'object' && Object.keys(annotations).length > 0) {
+                    let html = '<div class="flex flex-wrap justify-center">';
+                    
+                    for (const [word, info] of Object.entries(annotations)) {
+                        // 支持两种格式：
+                        // 1. {word: "meaning"} - 简单格式
+                        // 2. {word: {pinyin: "...", meaning: "..."}} - 复杂格式（从docx来的）
+                        
+                        let pinyin = '';
+                        let meaning = '';
+                        
+                        if (typeof info === 'string') {
+                            // 简单格式：直接是释义
+                            // 尝试从字符串中提取拼音（如果有的话）
+                            // 格式可能是 "word pinyin - meaning" 或 "pinyin - meaning"
+                            const match = info.match(/^([a-zāáǎàēéěèīíǐìōóǒòūúǔùüǖǘǚǜ\s]+)\s*[–-]\s*(.+)$/i);
+                            if (match) {
+                                pinyin = match[1].trim();
+                                meaning = match[2].trim();
+                            } else {
+                                meaning = info;
+                            }
+                        } else if (typeof info === 'object') {
+                            // 复杂格式
+                            pinyin = info.pinyin || info.拼音 || '';
+                            meaning = info.meaning || info.解释 || info.释义 || JSON.stringify(info);
+                        }
+                        
+                        html += `
+                            <div class="keyword-card">
+                                <span class="word">${word}</span>
+                                ${pinyin ? `<span class="pinyin">${pinyin}</span>` : ''}
+                                <span class="meaning">${meaning}</span>
+                            </div>
+                        `;
+                    }
+                    
+                    html += '</div>';
+                    keywordsDiv.innerHTML = html;
+                } else {
+                    keywordsDiv.innerHTML = '<p class="text-gray-500 text-center">暂无注释信息</p>';
+                }
+            } catch (error) {
+                console.error('解析注释失败:', error);
+                keywordsDiv.innerHTML = '<p class="text-gray-500 text-center">注释解析失败</p>';
+            }
+        }
+        
+        // 切换拼音显示
+        // 开始学习记录
+        async function startLearning() {
+            try {
+                await fetch(`${API_BASE}/poems/${poemId}/start-learning`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+            } catch (error) {
+                console.error('记录学习开始失败:', error);
+            }
+        }
+
+        // TTS朗读
+        function playTTS() {
+            if ('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance(currentPoem.content);
+                utterance.lang = 'zh-CN';
+                utterance.rate = 0.8;
+                speechSynthesis.speak(utterance);
+            } else {
+                alert('您的浏览器不支持语音合成功能');
+            }
+        }
+
+        // 播放意境视频
+        function playVideo() {
+            if (!currentPoem || !currentPoem.title) {
+                alert('请先加载古诗');
+                return;
+            }
+            
+            // 根据古诗标题查找对应的视频文件
+            const videoFileName = `${currentPoem.title}.mp4`;
+            const videoPath = `/static/videos/${videoFileName}`;
+            
+            // 设置视频源
+            const videoSource = document.getElementById('videoSource');
+            const videoElement = document.getElementById('poemVideo');
+            const videoContainer = document.getElementById('videoPlayerContainer');
+            
+            videoSource.src = videoPath;
+            videoElement.load();
+            
+            // 添加视频事件监听器
+            if (!videoElement.dataset.trackingEnabled) {
+                videoElement.addEventListener('play', () => trackVideoPlay(videoElement));
+                videoElement.addEventListener('pause', () => trackVideoPause(videoElement));
+                videoElement.addEventListener('seeked', () => trackVideoSeek(videoElement));
+                videoElement.addEventListener('ended', () => trackVideoEnded(videoElement));
+                videoElement.dataset.trackingEnabled = 'true';
+                console.log('📹 视频追踪已启用');
+            }
+            
+            // 显示视频容器并添加动画
+            videoContainer.style.display = 'block';
+            videoContainer.classList.add('video-fade-in');
+            
+            // 滚动到视频位置
+            videoContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            
+            // 视频加载完成后自动播放
+            videoElement.onloadeddata = function() {
+                videoElement.play().then(() => {
+                    document.getElementById('videoStatus').textContent = '正在播放';
+                }).catch(error => {
+                    console.error('视频播放失败:', error);
+                    document.getElementById('videoStatus').textContent = '播放失败，请手动点击播放';
+                });
+            };
+            
+            // 视频加载错误处理
+            videoElement.onerror = function() {
+                alert(`未找到《${currentPoem.title}》的视频文件\n\n视频路径: ${videoPath}\n\n请确保视频文件已上传到 static/videos/ 目录`);
+                videoContainer.style.display = 'none';
+            };
+            
+            // 视频播放事件
+            videoElement.onplay = function() {
+                document.getElementById('videoStatus').textContent = '正在播放';
+            };
+            
+            videoElement.onpause = function() {
+                document.getElementById('videoStatus').textContent = '已暂停';
+            };
+            
+            videoElement.onended = function() {
+                document.getElementById('videoStatus').textContent = '播放完成';
+            };
+        }
+        
+        // 关闭视频
+        function closeVideo() {
+            const videoElement = document.getElementById('poemVideo');
+            const videoContainer = document.getElementById('videoPlayerContainer');
+            
+            videoElement.pause();
+            videoElement.currentTime = 0;
+            videoContainer.style.display = 'none';
+        }
+
+        // 显示练习题 - 跳转到练习题页面
+        function showExercises() {
+            if (!authToken) {
+                alert('请先登录后再做练习');
+                return;
+            }
+            
+            // 跳转到练习题页面
+            window.location.href = `/exercises?poem_id=${poemId}`;
+        }
+
+
+        // 标记为已学习
+        async function markAsLearned() {
+            if (!authToken) {
+                alert('请先登录');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE}/learning/complete`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ poem_id: poemId })
+                });
+                
+                if (response.ok) {
+                    alert('已标记为学习完成！');
+                } else {
+                    const data = await response.json();
+                    alert('标记失败: ' + data.error);
+                }
+            } catch (error) {
+                alert('标记失败: ' + error.message);
+            }
+        }
+
+        // AI问答 - 新版多语言支持
+        async function askAI(type, customQuestion = null) {
+            // 检查是否登录
+            if (!authToken) {
+                alert('请先登录后使用AI助手');
+                return;
+            }
+            
+            // 检查古诗是否加载
+            if (!currentPoem || !poemId) {
+                alert('请等待古诗加载完成');
+                return;
+            }
+            
+            const question = customQuestion || getDefaultQuestion(type);
+            
+            if (!question) return;
+            
+            // 添加用户消息
+            addMessage(question, 'user');
+            
+            // 显示加载状态
+            const loadingMsg = document.createElement('div');
+            loadingMsg.className = 'chat-message ai-message loading-message';
+            loadingMsg.innerHTML = `
+                <div class="flex items-start">
+                    <i class="fas fa-robot text-blue-600 mr-2 mt-1"></i>
+                    <div>
+                        <div class="loading"></div>
+                        <span class="ml-2">AI正在思考...</span>
+                    </div>
+                </div>
+            `;
+            const messagesDiv = document.getElementById('chatMessages');
+            messagesDiv.appendChild(loadingMsg);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            
+            try {
+                // 获取用户设置
+                const hskLevel = document.getElementById('hskLevel').value || 'HSK3';
+                const userLanguage = document.getElementById('userLanguage').value || 'en';
+                
+                // 使用新的智能多语言API
+                const endpoint = 'ask';  // 新的统一接口
+                const requestBody = {
+                    question: question,
+                    poem_id: parseInt(poemId),
+                    hsk_level: hskLevel,
+                    user_language: userLanguage
+                };
+                
+                console.log('🤖 发送AI请求:', endpoint, requestBody);
+                
+                const response = await fetch(`${API_BASE}/ai/${endpoint}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify(requestBody)
+                });
+                
+                console.log('📡 AI响应状态:', response.status);
+                
+                const data = await response.json();
+                console.log('📨 AI响应数据:', data);
+                
+                // 移除加载消息
+                if (loadingMsg && loadingMsg.parentNode) {
+                    loadingMsg.remove();
+                }
+                
+                if (response.ok && data.success) {
+                    // 添加AI回答 - 使用新格式
+                    addAIAnswer(data);
+                    
+                    // 追踪AI交互
+                    trackEvent('ai_question', type, {
+                        question: question,
+                        questionType: type,
+                        hasAnswer: true,
+                        hskLevel: hskLevel,
+                        questionLanguage: data.question_language,
+                        hasTranslation: data.has_translation,
+                        usedCommonQA: data.common_qa_used
+                    }, false);
+                    
+                    // 更新会话的AI交互数据
+                    if (currentSessionId) {
+                        fetch(`${API_BASE}/tracking/session/${currentSessionId}/ai-interaction`, {
+                            method: 'POST',
+                            headers: {
+                                'Authorization': `Bearer ${authToken}`,
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                question: question,
+                                topic: type,
+                                response_time: data.response_time
+                            })
+                        }).catch(err => console.error('AI交互追踪失败:', err));
+                    }
+                } else {
+                    const errorMsg = data.error || 'AI助手暂时无法回答您的问题，请稍后重试';
+                    addMessage(`❌ ${errorMsg}`, 'ai');
+                    console.error('❌ AI请求失败:', data);
+                }
+            } catch (error) {
+                console.error('❌ AI请求异常:', error);
+                
+                // 移除加载消息
+                if (loadingMsg && loadingMsg.parentNode) {
+                    loadingMsg.remove();
+                }
+                
+                addMessage('❌ 网络连接失败，请检查网络连接', 'ai');
+            }
+        }
+
+        // 添加AI答案（新版 - 支持翻译）
+        function addAIAnswer(data) {
+            const messagesDiv = document.getElementById('chatMessages');
+            const hskLevel = document.getElementById('hskLevel').value || 'HSK3';
+            const userLanguage = document.getElementById('userLanguage').value || 'en';
+            
+            const languageNames = {
+                'en': 'English',
+                'es': 'Español',
+                'fr': 'Français',
+                'de': 'Deutsch',
+                'ja': '日本語',
+                'ko': '한국어'
+            };
+            
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'chat-message ai-message';
+            
+            let html = `
+                <div class="flex items-start">
+                    <i class="fas fa-robot text-blue-600 mr-2 mt-1"></i>
+                    <div class="flex-1">
+                        <!-- 标签区 -->
+                        <div class="flex items-center gap-2 mb-2">
+                            <span class="text-xs px-2 py-0.5 bg-blue-100 text-blue-700 rounded">${hskLevel}级别</span>
+                            ${data.common_qa_used ? '<span class="text-xs px-2 py-0.5 bg-green-100 text-green-700 rounded">📚 知识库</span>' : '<span class="text-xs px-2 py-0.5 bg-purple-100 text-purple-700 rounded">🤖 AI生成</span>'}
+                            <span class="text-xs text-gray-400">${data.response_time.toFixed(2)}秒</span>
+                        </div>
+                        
+                        <!-- 中文答案 -->
+                        <div class="answer-chinese bg-yellow-50 border-l-4 border-yellow-400 p-3 rounded mb-2">
+                            <div class="font-semibold text-gray-700 mb-1 text-sm">📖 中文回答：</div>
+                            <div class="text-gray-800">${formatMarkdown(data.answer_chinese)}</div>
+                        </div>
+            `;
+            
+            // 如果有翻译，添加"查看翻译"按钮
+            if (data.has_translation && data.answer_translation) {
+                const translationId = 'translation_' + Date.now();
+                html += `
+                        <!-- 翻译按钮 -->
+                        <button onclick="toggleTranslation('${translationId}')" class="flex items-center gap-2 w-full px-3 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors text-sm mb-2">
+                            <i class="fas fa-language"></i>
+                            <span class="show-text">🌍 查看翻译 (View Translation)</span>
+                            <span class="hide-text" style="display: none;">⬆️ 隐藏翻译 (Hide Translation)</span>
+                        </button>
+                        
+                        <!-- 翻译内容 （默认隐藏）-->
+                        <div id="${translationId}" class="answer-translation bg-blue-50 border-l-4 border-blue-400 p-3 rounded" style="display: none;">
+                            <div class="font-semibold text-gray-700 mb-1 text-sm">🌐 ${languageNames[userLanguage]} Translation:</div>
+                            <div class="text-gray-800">${formatMarkdown(data.answer_translation)}</div>
+                        </div>
+                `;
+            }
+            
+            html += `
+                    </div>
+                </div>
+            `;
+            
+            messageDiv.innerHTML = html;
+            messagesDiv.appendChild(messageDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        // 切换翻译显示
+        function toggleTranslation(translationId) {
+            const translationDiv = document.getElementById(translationId);
+            const button = event.target.closest('button');
+            const showText = button.querySelector('.show-text');
+            const hideText = button.querySelector('.hide-text');
+            
+            if (translationDiv.style.display === 'none') {
+                translationDiv.style.display = 'block';
+                showText.style.display = 'none';
+                hideText.style.display = 'inline';
+                
+                // 追踪翻译查看事件
+                trackEvent('view_translation', 'ai_answer', {
+                    translation_id: translationId
+                });
+            } else {
+                translationDiv.style.display = 'none';
+                showText.style.display = 'inline';
+                hideText.style.display = 'none';
+            }
+        }
+
+        // 获取默认问题
+        function getDefaultQuestion(type) {
+            const questions = {
+                'word-analysis': '请解析这首诗中的重要字词含义',
+                'background-explanation': '请介绍这首诗的创作背景',
+                'artistic-analysis': '请分析这首诗的艺术特色和意境'
+            };
+            return questions[type];
+        }
+
+        // 发送消息
+        function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const question = input.value.trim();
+            
+            if (!question) return;
+            
+            input.value = '';
+            askAI('general', question);
+        }
+
+        // Markdown格式化函数
+        function formatMarkdown(text) {
+            if (!text) return '';
+            
+            // 转义HTML特殊字符（除了我们要处理的Markdown标记）
+            let html = text
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;');
+            
+            // 代码块 ```code```
+            html = html.replace(/```(\w*)\n([\s\S]*?)```/g, function(match, lang, code) {
+                return `<pre class="bg-gray-800 text-gray-100 p-3 rounded-lg my-2 overflow-x-auto"><code class="language-${lang}">${code.trim()}</code></pre>`;
+            });
+            
+            // 行内代码 `code`
+            html = html.replace(/`([^`]+)`/g, '<code class="bg-gray-200 text-red-600 px-1.5 py-0.5 rounded text-sm font-mono">$1</code>');
+            
+            // 加粗 **text** 或 __text__
+            html = html.replace(/\*\*([^\*]+)\*\*/g, '<strong class="font-bold text-gray-900">$1</strong>');
+            html = html.replace(/__([^_]+)__/g, '<strong class="font-bold text-gray-900">$1</strong>');
+            
+            // 斜体 *text* 或 _text_
+            html = html.replace(/\*([^\*]+)\*/g, '<em class="italic text-gray-700">$1</em>');
+            html = html.replace(/_([^_]+)_/g, '<em class="italic text-gray-700">$1</em>');
+            
+            // 标题 ### text
+            html = html.replace(/^### (.+)$/gm, '<h3 class="text-lg font-bold text-gray-800 mt-3 mb-2">$1</h3>');
+            html = html.replace(/^## (.+)$/gm, '<h2 class="text-xl font-bold text-gray-800 mt-4 mb-2">$1</h2>');
+            html = html.replace(/^# (.+)$/gm, '<h1 class="text-2xl font-bold text-gray-800 mt-4 mb-3">$1</h1>');
+            
+            // 无序列表 - item 或 * item
+            html = html.replace(/^[\-\*] (.+)$/gm, '<li class="ml-4 my-1">• $1</li>');
+            
+            // 有序列表 1. item
+            html = html.replace(/^\d+\. (.+)$/gm, '<li class="ml-4 my-1 list-decimal">$1</li>');
+            
+            // 链接 [text](url)
+            html = html.replace(/\[([^\]]+)\]\(([^\)]+)\)/g, '<a href="$2" class="text-blue-600 hover:text-blue-800 underline" target="_blank">$1</a>');
+            
+            // 引用 > text
+            html = html.replace(/^&gt; (.+)$/gm, '<blockquote class="border-l-4 border-blue-500 pl-4 py-2 my-2 italic text-gray-600 bg-blue-50">$1</blockquote>');
+            
+            // 换行符转<br>
+            html = html.replace(/\n/g, '<br>');
+            
+            return html;
+        }
+        
+        // 添加消息
+        function addMessage(content, type) {
+            const messagesDiv = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            const messageId = 'msg-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+            
+            messageDiv.id = messageId;
+            messageDiv.className = `chat-message ${type}-message`;
+            
+            // 对AI消息应用Markdown格式化
+            const formattedContent = type === 'ai' ? formatMarkdown(content) : content.replace(/\n/g, '<br>');
+            
+            if (type === 'ai') {
+                messageDiv.innerHTML = `
+                    <div class="flex items-start">
+                        <i class="fas fa-robot text-blue-600 mr-2 mt-1 flex-shrink-0"></i>
+                        <div class="markdown-content" style="flex: 1; line-height: 1.6;">${formattedContent}</div>
+                    </div>
+                `;
+            } else {
+                messageDiv.innerHTML = `
+                    <div class="flex items-start justify-end">
+                        <div style="white-space: pre-wrap;">${formattedContent}</div>
+                        <i class="fas fa-user text-white ml-2 mt-1 flex-shrink-0"></i>
+                    </div>
+                `;
+            }
+            
+            messagesDiv.appendChild(messageDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            
+            return messageId;
+        }
+
+        // 移除消息
+        function removeMessage(messageId) {
+            const messageDiv = document.getElementById(messageId);
+            if (messageDiv && messageDiv.parentNode) {
+                messageDiv.remove();
+                console.log('✅ 已移除消息:', messageId);
+            } else {
+                console.warn('⚠️ 未找到要移除的消息:', messageId);
+            }
+        }
+
+        // 清空对话
+        function clearChat() {
+            const messagesDiv = document.getElementById('chatMessages');
+            messagesDiv.innerHTML = `
+                <div class="ai-message">
+                    <div class="flex items-start">
+                        <i class="fas fa-robot text-blue-600 mr-2 mt-1"></i>
+                        <div>
+                            <p>对话已清空。有什么问题可以继续问我！</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 设置拖拽调整大小
+        function setupResizer() {
+            const resizer = document.getElementById('resizer');
+            const poemPanel = document.getElementById('poemPanel');
+            const aiPanel = document.getElementById('aiPanel');
+            const container = resizer.parentElement;
+            
+            let isResizing = false;
+            
+            resizer.addEventListener('mousedown', function(e) {
+                isResizing = true;
+                document.addEventListener('mousemove', handleMouseMove);
+                document.addEventListener('mouseup', handleMouseUp);
+                document.body.style.cursor = 'col-resize';
+                e.preventDefault();
+            });
+            
+            function handleMouseMove(e) {
+                if (!isResizing) return;
+                
+                const containerRect = container.getBoundingClientRect();
+                const newPoemWidth = ((e.clientX - containerRect.left) / containerRect.width) * 100;
+                
+                // 限制最小和最大宽度
+                if (newPoemWidth >= 30 && newPoemWidth <= 80) {
+                    poemPanel.style.width = newPoemWidth + '%';
+                    aiPanel.style.width = (100 - newPoemWidth) + '%';
+                }
+            }
+            
+            function handleMouseUp() {
+                isResizing = false;
+                document.removeEventListener('mousemove', handleMouseMove);
+                document.removeEventListener('mouseup', handleMouseUp);
+                document.body.style.cursor = '';
+            }
+        }
+
+        // 全屏切换
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+            } else {
+                document.exitFullscreen();
+            }
+        }
+
+        // 保存用户设置（HSK等级和母语）
+        async function saveUserSettings() {
+            if (!authToken) return;
+            
+            const hskLevel = document.getElementById('hskLevel').value;
+            const nativeLanguage = document.getElementById('userLanguage').value;
+            
+            try {
+                const response = await fetch(`${API_BASE}/auth/profile`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify({
+                        hsk_level: hskLevel,
+                        native_language: nativeLanguage
+                    })
+                });
+                
+                if (response.ok) {
+                    console.log('✓ 用户设置已保存:', hskLevel, nativeLanguage);
+                    
+                    // 显示提示
+                    showToast(`设置已保存：${hskLevel} / ${nativeLanguage}`);
+                } else {
+                    console.error('保存设置失败');
+                }
+            } catch (error) {
+                console.error('保存设置异常:', error);
+            }
+        }
+        
+        // 显示提示消息
+        function showToast(message) {
+            // 创建toast元素
+            const toast = document.createElement('div');
+            toast.className = 'fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded shadow-lg z-50 transition-opacity';
+            toast.textContent = message;
+            toast.style.opacity = '0';
+            
+            document.body.appendChild(toast);
+            
+            // 淡入
+            setTimeout(() => {
+                toast.style.opacity = '1';
+            }, 10);
+            
+            // 3秒后淡出并删除
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => {
+                    document.body.removeChild(toast);
+                }, 300);
+            }, 3000);
+        }
+
+        // ============= 音频播放功能 =============
+        function playPoemAudio() {
+            if (!currentPoem || !poemId) {
+                alert('请先加载古诗');
+                return;
+            }
+            
+            const voiceGender = document.getElementById('voiceGender').value;
+            const voiceSpeed = document.getElementById('voiceSpeed').value;
+            
+            // 构建音频文件路径: {poem_id}_{gender}_{speed}.mp3
+            // 如果poem_id小于10，添加前导零（例如：01, 02）
+            const formattedPoemId = poemId < 10 ? `0${poemId}` : poemId;
+            const audioFileName = `${formattedPoemId}_${voiceGender}_${voiceSpeed}.mp3`;
+            const audioPath = `/static/audio/poems/${audioFileName}`;
+            
+            const audioPlayer = document.getElementById('poemAudioPlayer');
+            const playBtn = document.getElementById('playAudioBtn');
+            
+            // 设置音频源
+            audioPlayer.src = audioPath;
+            audioPlayer.style.display = 'block';
+            
+            // 播放音频
+            audioPlayer.play().then(() => {
+                console.log('🔊 播放音频:', audioFileName);
+                playBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>暂停';
+                playBtn.onclick = pausePoemAudio;
+                
+                // 追踪播放事件
+                trackEvent('audio_play', 'poem_audio', {
+                    poem_id: poemId,
+                    voice: voiceGender,
+                    speed: voiceSpeed
+                });
+            }).catch(error => {
+                console.error('音频播放失败:', error);
+                alert(`未找到音频文件\n\n文件路径: ${audioPath}\n\n请确保音频文件存在`);
+                audioPlayer.style.display = 'none';
+            });
+            
+            // 监听播放结束
+            audioPlayer.onended = function() {
+                playBtn.innerHTML = '<i class="fas fa-play mr-2"></i>播放';
+                playBtn.onclick = playPoemAudio;
+            };
+        }
+        
+        function pausePoemAudio() {
+            const audioPlayer = document.getElementById('poemAudioPlayer');
+            const playBtn = document.getElementById('playAudioBtn');
+            
+            audioPlayer.pause();
+            playBtn.innerHTML = '<i class="fas fa-play mr-2"></i>播放';
+            playBtn.onclick = playPoemAudio;
+        }
+
+        // ============= 录音与发音评估功能 =============
+        let mediaRecorder = null;
+        let audioChunks = [];
+        let recordingStream = null;
+        
+        async function startRecording() {
+            try {
+                // 请求麦克风权限
+                recordingStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                
+                mediaRecorder = new MediaRecorder(recordingStream);
+                audioChunks = [];
+                
+                mediaRecorder.ondataavailable = (event) => {
+                    audioChunks.push(event.data);
+                };
+                
+                mediaRecorder.onstop = async () => {
+                    // 创建音频blob
+                    const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                    
+                    // 发送到服务器进行评估
+                    await assessPronunciation(audioBlob);
+                    
+                    // 停止所有音频轨道
+                    if (recordingStream) {
+                        recordingStream.getTracks().forEach(track => track.stop());
+                    }
+                };
+                
+                // 开始录音
+                mediaRecorder.start();
+                
+                // 更新UI
+                document.getElementById('startRecordBtn').style.display = 'none';
+                document.getElementById('stopRecordBtn').style.display = 'inline-block';
+                document.getElementById('recordingStatus').style.display = 'block';
+                document.getElementById('pronunciationResult').style.display = 'none';
+                
+                console.log('🎤 开始录音');
+                
+                // 追踪录音开始事件
+                trackEvent('recording_start', 'pronunciation_practice', {
+                    poem_id: poemId
+                });
+                
+            } catch (error) {
+                console.error('录音失败:', error);
+                alert('无法访问麦克风，请检查浏览器权限设置');
+            }
+        }
+        
+        function stopRecording() {
+            if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+                mediaRecorder.stop();
+                
+                // 更新UI
+                document.getElementById('startRecordBtn').style.display = 'inline-block';
+                document.getElementById('stopRecordBtn').style.display = 'none';
+                document.getElementById('recordingStatus').style.display = 'none';
+                
+                console.log('🛑 停止录音');
+            }
+        }
+        
+        async function assessPronunciation(audioBlob) {
+            if (!authToken) {
+                alert('请先登录后使用发音评估功能');
+                return;
+            }
+            
+            // 显示加载状态
+            const resultDiv = document.getElementById('pronunciationResult');
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = `
+                <div class="text-center py-8">
+                    <div class="loading mx-auto mb-4"></div>
+                    <p class="text-gray-600">正在分析您的发音...</p>
+                </div>
+            `;
+            
+            try {
+                // 创建FormData
+                const formData = new FormData();
+                formData.append('audio', audioBlob, 'recording.webm');
+                formData.append('poem_id', poemId);
+                formData.append('text', currentPoem.content);
+                
+                // 发送到服务器
+                const response = await fetch(`${API_BASE}/voice/assess-pronunciation`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: formData
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    displayPronunciationResult(data);
+                    
+                    // 追踪评估完成事件
+                    trackEvent('pronunciation_assessed', 'pronunciation_practice', {
+                        poem_id: poemId,
+                        overall_score: data.overall_score
+                    });
+                } else {
+                    const error = await response.json();
+                    throw new Error(error.error || '评估失败');
+                }
+                
+            } catch (error) {
+                console.error('发音评估失败:', error);
+                resultDiv.innerHTML = `
+                    <div class="text-center py-8">
+                        <i class="fas fa-exclamation-triangle text-red-500 text-4xl mb-4"></i>
+                        <p class="text-red-600">${error.message}</p>
+                        <button onclick="document.getElementById('pronunciationResult').style.display='none'" 
+                                class="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+                            关闭
+                        </button>
+                    </div>
+                `;
+            }
+        }
+        
+        function displayPronunciationResult(data) {
+            const resultDiv = document.getElementById('pronunciationResult');
+            
+            // 计算星级评分
+            const stars = Math.round(data.overall_score / 20);
+            let starHTML = '';
+            for (let i = 0; i < 5; i++) {
+                if (i < stars) {
+                    starHTML += '<i class="fas fa-star text-yellow-400 text-2xl"></i>';
+                } else {
+                    starHTML += '<i class="far fa-star text-gray-300 text-2xl"></i>';
+                }
+            }
+            
+            // 生成建议文本
+            let suggestion = '';
+            if (data.overall_score >= 90) {
+                suggestion = '太棒了！您的发音非常标准！';
+            } else if (data.overall_score >= 80) {
+                suggestion = '很好！继续保持，注意个别字词的发音。';
+            } else if (data.overall_score >= 70) {
+                suggestion = '不错！多练习会更好，注意语调和流利度。';
+            } else if (data.overall_score >= 60) {
+                suggestion = '继续努力！建议多听标准朗读，模仿语调。';
+            } else {
+                suggestion = '加油！建议先听标准朗读，然后跟读练习。';
+            }
+            
+            // 生成字词高亮
+            let wordHighlights = '';
+            if (data.word_scores && data.word_scores.length > 0) {
+                wordHighlights = data.word_scores.map(item => {
+                    let colorClass = '';
+                    if (item.score >= 90) {
+                        colorClass = 'text-green-600';
+                    } else if (item.score >= 70) {
+                        colorClass = 'text-yellow-600';
+                    } else {
+                        colorClass = 'text-red-600 font-bold';
+                    }
+                    return `<span class="${colorClass}" title="得分: ${item.score}">${item.word}</span>`;
+                }).join('');
+            } else {
+                wordHighlights = currentPoem.content;
+            }
+            
+            // 直接生成完整HTML（不需要先更新DOM元素）
+            resultDiv.innerHTML = `
+                <div class="bg-white rounded-lg p-4 border border-green-300">
+                    <h5 class="font-bold text-gray-800 mb-3 flex items-center">
+                        <i class="fas fa-chart-bar mr-2 text-green-600"></i>发音评分
+                    </h5>
+                    
+                    <div class="text-center mb-4">
+                        <div class="text-5xl font-bold text-green-600 mb-2">${data.overall_score}</div>
+                        <div class="flex justify-center items-center gap-1">
+                            ${starHTML}
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-3 gap-3 mb-4">
+                        <div class="text-center">
+                            <div class="text-xs text-gray-600 mb-1">准确度</div>
+                            <div class="text-2xl font-bold text-blue-600">${data.accuracy_score || data.overall_score}</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-xs text-gray-600 mb-1">流利度</div>
+                            <div class="text-2xl font-bold text-purple-600">${data.fluency_score || data.overall_score}</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-xs text-gray-600 mb-1">语调</div>
+                            <div class="text-2xl font-bold text-orange-600">${data.intonation_score || data.overall_score}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-3">
+                        <div class="text-sm font-semibold text-gray-700 mb-2">发音分析：</div>
+                        <div class="text-lg leading-relaxed" style="font-family: 'KaiTi', '楷体', serif;">
+                            ${wordHighlights}
+                        </div>
+                        <div class="text-xs text-gray-500 mt-2">
+                            <span class="text-green-600">■</span> 优秀 (90+) &nbsp;
+                            <span class="text-yellow-600">■</span> 良好 (70-89) &nbsp;
+                            <span class="text-red-600">■</span> 需改进 (&lt;70)
+                        </div>
+                    </div>
+                    
+                    <div class="mt-3 p-3 bg-blue-50 rounded-lg">
+                        <div class="text-sm text-gray-700">
+                            <i class="fas fa-lightbulb text-yellow-500 mr-2"></i>
+                            <span>${suggestion}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>练习题 - 古诗教学平台</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-50">
+    <!-- 导航栏 -->
+    <nav class="bg-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex justify-between items-center py-4">
+                <div class="flex items-center space-x-4">
+                    <button onclick="goBack()" class="text-gray-600 hover:text-blue-600">
+                        <i class="fas fa-arrow-left mr-2"></i>返回学习
+                    </button>
+                    <h1 class="text-2xl font-bold text-gray-800">
+                        <i class="fas fa-clipboard-list text-blue-600 mr-2"></i>
+                        <span id="poemTitle">古诗练习题</span>
+                    </h1>
+                </div>
+                <div id="userInfo" class="text-gray-600">
+                    <i class="fas fa-user mr-1"></i>
+                    <span id="username"></span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-5xl mx-auto px-4 py-8">
+        <!-- 练习题容器 -->
+        <div id="exercisesContent" class="space-y-6">
+            <!-- 加载中 -->
+            <div class="text-center py-12">
+                <i class="fas fa-spinner fa-spin text-4xl text-blue-500 mb-4"></i>
+                <p class="text-gray-600">正在加载练习题...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 全局变量
+        const authToken = localStorage.getItem('authToken');
+        const API_BASE = '/api';
+        
+        // 从URL获取古诗ID
+        const urlParams = new URLSearchParams(window.location.search);
+        const poemId = urlParams.get('poem_id');
+        
+        // 用户答案记录
+        let userAnswers = {};
+        let allExercises = [];
+
+        // 页面加载
+        document.addEventListener('DOMContentLoaded', function() {
+            if (!authToken) {
+                alert('请先登录');
+                window.location.href = '/poems';
+                return;
+            }
+            
+            if (!poemId) {
+                alert('参数错误');
+                window.location.href = '/poems';
+                return;
+            }
+            
+            loadUserInfo();
+            loadExercises();
+        });
+
+        // 加载用户信息
+        async function loadUserInfo() {
+            try {
+                const response = await fetch(`${API_BASE}/auth/profile`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    document.getElementById('username').textContent = data.user.username;
+                }
+            } catch (error) {
+                console.error('加载用户信息失败:', error);
+            }
+        }
+
+        // 加载练习题
+        async function loadExercises() {
+            const exercisesDiv = document.getElementById('exercisesContent');
+            
+            try {
+                // 获取练习题
+                const response = await fetch(`${API_BASE}/exercises/poem/${poemId}`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                
+                if (!response.ok) {
+                    throw new Error('获取练习题失败');
+                }
+                
+                const data = await response.json();
+                allExercises = data.exercises;
+                
+                // 更新标题
+                if (data.poem) {
+                    document.getElementById('poemTitle').textContent = 
+                        `《${data.poem.title}》练习题`;
+                }
+                
+                if (allExercises.length === 0) {
+                    exercisesDiv.innerHTML = `
+                        <div class="text-center py-12 bg-white rounded-xl shadow-lg">
+                            <i class="fas fa-exclamation-circle text-6xl text-gray-300 mb-4"></i>
+                            <p class="text-gray-600 mb-6 text-lg">暂无练习题</p>
+                            <button onclick="generateExercises()" 
+                                    class="bg-blue-500 text-white px-8 py-3 rounded-lg hover:bg-blue-600 text-lg font-medium transition-colors">
+                                <i class="fas fa-magic mr-2"></i>生成练习题
+                            </button>
+                            <p class="text-sm text-gray-500 mt-4">使用AI自动生成高质量练习题</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                // 显示练习题
+                displayExercises(allExercises);
+                
+            } catch (error) {
+                console.error('加载练习题失败:', error);
+                exercisesDiv.innerHTML = `
+                    <div class="text-center py-12 bg-white rounded-xl shadow-lg">
+                        <i class="fas fa-times-circle text-6xl text-red-300 mb-4"></i>
+                        <p class="text-red-500 mb-6 text-lg">加载练习题失败</p>
+                        <button onclick="location.reload()" 
+                                class="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600">
+                            重新加载
+                        </button>
+                    </div>
+                `;
+            }
+        }
+
+        // 显示练习题列表
+        function displayExercises(exercises) {
+            const exercisesDiv = document.getElementById('exercisesContent');
+            
+            let html = `
+                <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <h2 class="text-xl font-bold text-gray-800">
+                                <i class="fas fa-tasks text-blue-600 mr-2"></i>练习题
+                            </h2>
+                            <p class="text-gray-600 text-sm mt-1">
+                                共 ${exercises.length} 道题目
+                                <span class="mx-2">|</span>
+                                基础题 ${exercises.filter(e => e.difficulty === 1).length} 道
+                                <span class="mx-2">|</span>
+                                进阶题 ${exercises.filter(e => e.difficulty === 2 || e.difficulty > 1).length} 道
+                            </p>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-3xl font-bold text-blue-600">${exercises.reduce((sum, e) => sum + (e.points || 10), 0)}</div>
+                            <div class="text-sm text-gray-600">总分</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-6">
+            `;
+            
+            exercises.forEach((exercise, index) => {
+                // 解析选项（如果有）
+                let options = [];
+                if (exercise.options) {
+                    try {
+                        options = typeof exercise.options === 'string' 
+                            ? JSON.parse(exercise.options) 
+                            : exercise.options;
+                        // 转换对象格式为数组
+                        if (typeof options === 'object' && !Array.isArray(options)) {
+                            options = Object.values(options);
+                        }
+                    } catch (e) {
+                        console.error('解析选项失败:', e);
+                    }
+                }
+                
+                const isOpenQuestion = exercise.correct_answer === '开放题' || !exercise.options;
+                
+                html += `
+                    <div class="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow" id="exercise-${exercise.id}">
+                        <div class="flex items-start mb-5">
+                            <div class="bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-full w-10 h-10 flex items-center justify-center mr-4 flex-shrink-0 shadow-md">
+                                <span class="font-bold text-lg">${index + 1}</span>
+                            </div>
+                            <div class="flex-1">
+                                <div class="flex items-center gap-2 mb-3">
+                                    <span class="inline-block px-4 py-1 bg-gradient-to-r from-blue-100 to-blue-200 text-blue-700 rounded-full text-sm font-medium">
+                                        <i class="fas fa-tag mr-1"></i>${exercise.question_type}
+                                    </span>
+                                    ${exercise.difficulty === 1 ? 
+                                        '<span class="inline-block px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium"><i class="fas fa-star mr-1"></i>基础</span>' :
+                                        '<span class="inline-block px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-medium"><i class="fas fa-star mr-1"></i>进阶</span>'
+                                    }
+                                    <span class="text-sm text-gray-500">${exercise.points} 分</span>
+                                </div>
+                                <p class="text-lg font-medium text-gray-800 leading-relaxed">${exercise.question}</p>
+                            </div>
+                        </div>
+                        
+                        ${isOpenQuestion ? `
+                            <!-- 开放式问答：文本输入 -->
+                            <div class="ml-14">
+                                <textarea 
+                                    id="answer-${exercise.id}"
+                                    onchange="selectOpenAnswer(${exercise.id}, this.value)"
+                                    class="w-full p-4 border-2 border-gray-200 rounded-lg focus:border-blue-400 focus:outline-none resize-none"
+                                    rows="4"
+                                    placeholder="请用简单的中文回答（关键词即可）..."></textarea>
+                                <p class="text-sm text-gray-500 mt-2">
+                                    <i class="fas fa-info-circle mr-1"></i>
+                                    提示：${exercise.explanation || '简单表达你的想法即可'}
+                                </p>
+                            </div>
+                        ` : `
+                            <!-- 选择题 -->
+                            <div class="ml-14 space-y-3" id="options-${exercise.id}">
+                                ${options.map((option, optIndex) => {
+                                    const letter = String.fromCharCode(65 + optIndex);
+                                    return `
+                                        <button onclick="selectAnswer(${exercise.id}, '${letter}')"
+                                                class="w-full text-left p-4 border-2 border-gray-200 rounded-lg hover:border-blue-400 hover:bg-blue-50 transition-all duration-200 answer-option"
+                                                id="option-${exercise.id}-${letter}">
+                                            <span class="inline-block w-8 h-8 bg-gray-100 rounded-full text-center leading-8 font-bold text-gray-600 mr-3">${letter}</span>
+                                            <span class="font-medium text-gray-700">${option}</span>
+                                        </button>
+                                    `;
+                                }).join('')}
+                            </div>
+                        `}
+                        
+                        <div class="ml-14 mt-5 hidden" id="result-${exercise.id}">
+                            <!-- 答题结果将显示在这里 -->
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += `
+                </div>
+                
+                <div class="mt-8 text-center bg-white rounded-xl shadow-lg p-6">
+                    <button onclick="submitAllAnswers()" 
+                            class="bg-gradient-to-r from-green-500 to-green-600 text-white px-12 py-4 rounded-lg hover:from-green-600 hover:to-green-700 text-lg font-bold shadow-lg transform hover:scale-105 transition-all duration-200"
+                            id="submitBtn">
+                        <i class="fas fa-paper-plane mr-2"></i>提交答案
+                    </button>
+                    <p class="text-gray-500 text-sm mt-3">请完成所有题目后再提交</p>
+                </div>
+            `;
+            
+            exercisesDiv.innerHTML = html;
+        }
+
+        // 选择答案
+        function selectAnswer(exerciseId, answer) {
+            // 清除之前选中的样式
+            const options = document.querySelectorAll(`#options-${exerciseId} button`);
+            options.forEach(btn => {
+                btn.classList.remove('border-blue-500', 'bg-blue-50', 'shadow-md');
+                btn.classList.add('border-gray-200');
+            });
+            
+            // 添加选中样式
+            const selectedBtn = document.getElementById(`option-${exerciseId}-${answer}`);
+            selectedBtn.classList.remove('border-gray-200');
+            selectedBtn.classList.add('border-blue-500', 'bg-blue-50', 'shadow-md');
+            
+            // 记录答案
+            userAnswers[exerciseId] = answer;
+        }
+        
+        // 记录开放式问答的答案
+        function selectOpenAnswer(exerciseId, answer) {
+            if (answer.trim()) {
+                userAnswers[exerciseId] = answer.trim();
+            } else {
+                delete userAnswers[exerciseId];
+            }
+        }
+
+        // 提交所有答案
+        async function submitAllAnswers() {
+            if (Object.keys(userAnswers).length === 0) {
+                alert('请至少选择一道题的答案');
+                return;
+            }
+            
+            if (Object.keys(userAnswers).length < allExercises.length) {
+                if (!confirm(`您只完成了 ${Object.keys(userAnswers).length}/${allExercises.length} 道题，确定要提交吗？`)) {
+                    return;
+                }
+            }
+            
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>提交中...';
+            
+            let correctCount = 0;
+            let totalScore = 0;
+            let totalCount = Object.keys(userAnswers).length;
+            
+            // 逐个提交答案
+            for (const [exerciseId, answer] of Object.entries(userAnswers)) {
+                try {
+                    const response = await fetch(`${API_BASE}/exercises/submit`, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${authToken}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            exercise_id: parseInt(exerciseId),
+                            user_answer: answer,
+                            time_spent: 0
+                        })
+                    });
+                    
+                    if (response.ok) {
+                        const result = await response.json();
+                        displayResult(exerciseId, result);
+                        
+                        if (result.is_correct) {
+                            correctCount++;
+                        }
+                        totalScore += result.score;
+                    }
+                } catch (error) {
+                    console.error('提交答案失败:', error);
+                }
+            }
+            
+            // 显示总结
+            setTimeout(() => {
+                const accuracy = (correctCount / totalCount * 100).toFixed(1);
+                const maxScore = allExercises.reduce((sum, e) => sum + (e.points || 10), 0);
+                const message = `
+                    🎉 答题完成！
+                    
+                    ✅ 正确：${correctCount} / ${totalCount}
+                    📊 正确率：${accuracy}%
+                    🏆 得分：${totalScore} / ${maxScore}
+                    
+                    ${accuracy >= 80 ? '太棒了！' : accuracy >= 60 ? '继续加油！' : '多复习一下吧！'}
+                `;
+                alert(message);
+                
+                submitBtn.innerHTML = '<i class="fas fa-redo mr-2"></i>重新作答';
+                submitBtn.disabled = false;
+                submitBtn.onclick = () => location.reload();
+            }, 1000);
+        }
+
+        // 显示单题结果
+        function displayResult(exerciseId, result) {
+            const resultDiv = document.getElementById(`result-${exerciseId}`);
+            const optionsDiv = document.getElementById(`options-${exerciseId}`);
+            const answerTextarea = document.getElementById(`answer-${exerciseId}`);
+            
+            const isOpenQuestion = result.correct_answer === '开放题';
+            
+            if (!isOpenQuestion && optionsDiv) {
+                // 选择题：禁用所有选项
+                const options = optionsDiv.querySelectorAll('button');
+                options.forEach(btn => {
+                    btn.disabled = true;
+                    btn.classList.remove('hover:border-blue-400', 'hover:bg-blue-50');
+                });
+                
+                // 标记正确答案
+                const correctBtn = document.getElementById(`option-${exerciseId}-${result.correct_answer}`);
+                if (correctBtn) {
+                    correctBtn.classList.remove('border-gray-200', 'bg-blue-50');
+                    correctBtn.classList.add('border-green-500', 'bg-green-50', 'shadow-md');
+                }
+                
+                // 如果答错了，标记错误答案
+                if (!result.is_correct) {
+                    const userAnswer = userAnswers[exerciseId];
+                    const wrongBtn = document.getElementById(`option-${exerciseId}-${userAnswer}`);
+                    if (wrongBtn) {
+                        wrongBtn.classList.add('border-red-500', 'bg-red-50');
+                    }
+                }
+            } else if (answerTextarea) {
+                // 开放题：禁用输入框
+                answerTextarea.disabled = true;
+                answerTextarea.classList.add('bg-gray-50');
+            }
+            
+            // 显示结果
+            const isCorrect = result.is_correct;
+            resultDiv.classList.remove('hidden');
+            
+            if (isOpenQuestion) {
+                // 开放式问答的结果显示
+                resultDiv.innerHTML = `
+                    <div class="p-5 rounded-xl bg-gradient-to-r from-blue-50 to-blue-100 border-2 border-blue-400">
+                        <div class="flex items-center mb-3">
+                            <i class="fas fa-check-circle text-blue-600 text-2xl mr-3"></i>
+                            <span class="font-bold text-lg text-blue-700">
+                                ✨ 已提交
+                            </span>
+                            <span class="ml-auto text-2xl font-bold text-blue-600">
+                                ${result.score} 分
+                            </span>
+                        </div>
+                        <div class="mb-3 p-3 bg-white rounded-lg">
+                            <span class="font-semibold text-gray-700">你的回答：</span>
+                            <p class="text-gray-800 mt-1">${userAnswers[exerciseId]}</p>
+                        </div>
+                        <div class="p-4 bg-white rounded-lg">
+                            <div class="flex items-start">
+                                <i class="fas fa-lightbulb text-yellow-500 text-lg mr-2 mt-1"></i>
+                                <div>
+                                    <span class="font-semibold text-gray-800">参考答案：</span>
+                                    <p class="text-gray-700 mt-1 leading-relaxed">${result.explanation}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                // 选择题的结果显示
+                resultDiv.innerHTML = `
+                    <div class="p-5 rounded-xl ${isCorrect ? 'bg-gradient-to-r from-green-50 to-green-100 border-2 border-green-400' : 'bg-gradient-to-r from-red-50 to-red-100 border-2 border-red-400'}">
+                        <div class="flex items-center mb-3">
+                            <i class="fas ${isCorrect ? 'fa-check-circle text-green-600' : 'fa-times-circle text-red-600'} text-2xl mr-3"></i>
+                            <span class="font-bold text-lg ${isCorrect ? 'text-green-700' : 'text-red-700'}">
+                                ${isCorrect ? '✨ 回答正确！' : '❌ 回答错误'}
+                            </span>
+                            <span class="ml-auto text-2xl font-bold ${isCorrect ? 'text-green-600' : 'text-gray-500'}">
+                                ${result.score} 分
+                            </span>
+                        </div>
+                        ${!isCorrect ? `
+                            <div class="mb-3 p-3 bg-white rounded-lg">
+                                <span class="font-semibold text-gray-700">正确答案：</span>
+                                <span class="text-green-600 font-bold">${result.correct_answer}</span>
+                            </div>
+                        ` : ''}
+                        <div class="p-4 bg-white rounded-lg">
+                            <div class="flex items-start">
+                                <i class="fas fa-lightbulb text-yellow-500 text-lg mr-2 mt-1"></i>
+                                <div>
+                                    <span class="font-semibold text-gray-800">解析：</span>
+                                    <p class="text-gray-700 mt-1 leading-relaxed">${result.explanation}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        // 生成练习题
+        async function generateExercises() {
+            const exercisesDiv = document.getElementById('exercisesContent');
+            exercisesDiv.innerHTML = `
+                <div class="text-center py-12 bg-white rounded-xl shadow-lg">
+                    <i class="fas fa-robot text-6xl text-blue-500 mb-4 animate-pulse"></i>
+                    <p class="text-gray-700 text-lg font-medium mb-2">AI正在生成练习题...</p>
+                    <p class="text-sm text-gray-500 mb-6">使用大模型分析古诗内容，生成高质量题目</p>
+                    <div class="flex justify-center space-x-2">
+                        <div class="w-3 h-3 bg-blue-500 rounded-full animate-bounce" style="animation-delay: 0s"></div>
+                        <div class="w-3 h-3 bg-blue-500 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
+                        <div class="w-3 h-3 bg-blue-500 rounded-full animate-bounce" style="animation-delay: 0.4s"></div>
+                    </div>
+                </div>
+            `;
+            
+            try {
+                const types = ['主旨理解', '字词理解', '意象赏析'];
+                let allNewExercises = [];
+                
+                for (const type of types) {
+                    const response = await fetch(`${API_BASE}/exercises/generate/${poemId}`, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${authToken}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ question_type: type })
+                    });
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        allNewExercises = allNewExercises.concat(data.exercises);
+                    }
+                }
+                
+                if (allNewExercises.length > 0) {
+                    allExercises = allNewExercises;
+                    displayExercises(allNewExercises);
+                } else {
+                    throw new Error('生成失败');
+                }
+                
+            } catch (error) {
+                console.error('生成练习题失败:', error);
+                exercisesDiv.innerHTML = `
+                    <div class="text-center py-12 bg-white rounded-xl shadow-lg">
+                        <i class="fas fa-exclamation-triangle text-6xl text-red-300 mb-4"></i>
+                        <p class="text-red-500 mb-6 text-lg">生成练习题失败</p>
+                        <button onclick="generateExercises()" 
+                                class="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600">
+                            <i class="fas fa-redo mr-2"></i>重新生成
+                        </button>
+                    </div>
+                `;
+            }
+        }
+
+        // 返回
+        function goBack() {
+            window.location.href = `/poem/${poemId}`;
+        }
+    </script>
+</body>
+</html>
