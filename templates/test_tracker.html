@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>测试多模态追踪器</title>
+</head>
+<body>
+    <h1>测试多模态追踪器加载</h1>
+    <div id="status"></div>
+    
+    <script src="/static/js/multimodal_tracker.js"></script>
+    <script>
+        const statusDiv = document.getElementById('status');
+        
+        console.log('=== 多模态追踪器加载测试 ===');
+        console.log('MultimodalTracker 类型:', typeof MultimodalTracker);
+        
+        if (typeof MultimodalTracker !== 'undefined') {
+            statusDiv.innerHTML = '<p style="color: green;">✅ MultimodalTracker 加载成功！</p>';
+            console.log('✅ MultimodalTracker 加载成功');
+            
+            // 尝试创建实例
+            try {
+                const tracker = new MultimodalTracker({debug: true});
+                console.log('✅ 实例创建成功:', tracker);
+                statusDiv.innerHTML += '<p style="color: green;">✅ 实例创建成功</p>';
+                statusDiv.innerHTML += '<p>Session ID: ' + tracker.sessionId + '</p>';
+            } catch (error) {
+                console.error('❌ 实例创建失败:', error);
+                statusDiv.innerHTML += '<p style="color: red;">❌ 实例创建失败: ' + error.message + '</p>';
+            }
+        } else {
+            statusDiv.innerHTML = '<p style="color: red;">❌ MultimodalTracker 未加载</p>';
+            console.error('❌ MultimodalTracker 未加载');
+        }
+    </script>
+</body>
+</html>

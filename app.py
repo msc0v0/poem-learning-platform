@@ -18,6 +18,7 @@ from routes.dashboard import dashboard_bp
 from routes.attention import attention_bp
 from routes.tracking import tracking_bp
 from routes.voice_training import voice_bp
+from routes.multimodal_tracking import multimodal_bp
 
 def create_app():
     app = Flask(__name__)
@@ -27,6 +28,10 @@ def create_app():
     app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY', 'jwt-secret-key')
     app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'sqlite:///poem_platform.db')
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    
+    # 禁用模板缓存（开发环境）
+    app.config['TEMPLATES_AUTO_RELOAD'] = True
+    app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
     
     # JWT配置 - 延长token有效期
     from datetime import timedelta
@@ -48,6 +53,7 @@ def create_app():
     app.register_blueprint(attention_bp, url_prefix='/api/attention')
     app.register_blueprint(tracking_bp, url_prefix='/api/tracking')
     app.register_blueprint(voice_bp, url_prefix='/api/voice')
+    app.register_blueprint(multimodal_bp)
     
     # 错误处理
     @app.errorhandler(404)
@@ -98,7 +104,13 @@ def create_app():
     @app.route('/test')
     def test_poems():
         from flask import render_template
-        return render_template('test_poems.html')
+        return render_template('index.html')
+    
+    # 测试多模态追踪器
+    @app.route('/test-tracker')
+    def test_tracker():
+        from flask import render_template
+        return render_template('test_tracker.html')
     
     # 古诗列表页面
     @app.route('/poems')

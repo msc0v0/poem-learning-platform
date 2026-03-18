@@ -4,6 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>古诗学习 - 古诗教学平台</title>
+    
+    <!-- 禁用缓存 - 强制加载最新版本 -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <!-- 使用替代CDN或本地样式 -->
 <!--    <link href="https://unpkg.com/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">-->
 <!--    <link rel="stylesheet" href="https://cdnjs.loli.net/ajax/libs/font-awesome/6.0.0/css/all.min.css">-->
@@ -619,11 +624,11 @@
                 
                 <!-- 操作按钮 -->
                 <div class="flex flex-wrap gap-3">
-                    <button onclick="playTTS()" class="action-button bg-white bg-opacity-20 text-white px-4 py-2 rounded-lg hover:bg-opacity-30 transition-colors">
-                        <i class="fas fa-volume-up mr-2"></i>朗读
+                    <button onclick="playVideo('pro')" class="action-button bg-gradient-to-r from-purple-500 to-pink-500 text-white px-4 py-2 rounded-lg hover:from-purple-600 hover:to-pink-600 transition-all shadow-md">
+                        <i class="fas fa-star mr-2"></i>意象视频
                     </button>
-                    <button onclick="playVideo()" class="action-button bg-white bg-opacity-20 text-white px-4 py-2 rounded-lg hover:bg-opacity-30 transition-colors">
-                        <i class="fas fa-play mr-2"></i>意境视频
+                    <button onclick="playVideo('normal')" class="action-button bg-white bg-opacity-20 text-white px-4 py-2 rounded-lg hover:bg-opacity-30 transition-colors">
+                        <i class="fas fa-play mr-2"></i>讲解视频
                     </button>
                     <button onclick="showExercises()" class="action-button bg-white bg-opacity-20 text-white px-4 py-2 rounded-lg hover:bg-opacity-30 transition-colors">
                         <i class="fas fa-pencil-alt mr-2"></i>练习题
@@ -636,9 +641,12 @@
 
             <!-- 视频播放器 -->
             <div class="bg-white rounded-xl p-6 shadow-lg mb-6" id="videoPlayerContainer" style="display: none;">
-                <h3 class="text-lg font-bold mb-4 text-gray-800">
-                    <i class="fas fa-video mr-2 text-purple-600"></i>古诗视频
-                </h3>
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-bold text-gray-800">
+                        <i class="fas fa-video mr-2 text-purple-600"></i><span id="videoTypeTitle">古诗视频</span>
+                    </h3>
+                    <span id="videoTypeBadge" class="px-3 py-1 rounded-full text-xs font-semibold"></span>
+                </div>
                 <div class="relative bg-black rounded-lg overflow-hidden" style="aspect-ratio: 16/9;">
                     <video 
                         id="poemVideo" 
@@ -1995,25 +2003,45 @@
         }
 
         // 播放意境视频
-        function playVideo() {
+        function playVideo(type = 'pro') {
             if (!currentPoem || !currentPoem.title) {
                 alert('请先加载古诗');
                 return;
             }
             
-            // 根据古诗标题查找对应的视频文件
+            // 根据类型和古诗标题查找对应的视频文件
             const videoFileName = `${currentPoem.title}.mp4`;
-            const videoPath = `/static/videos/${videoFileName}`;
+            let videoPath, videoTitle, videoBadge;
+            
+            if (type === 'pro') {
+                videoPath = `/static/videos pro/${videoFileName}`;
+                videoTitle = '诗歌意象视频';
+                videoBadge = '<span class="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-3 py-1 rounded-full text-xs font-semibold"><i class="fas fa-star mr-1"></i>意象</span>';
+            } else {
+                videoPath = `/static/videos/${videoFileName}`;
+                videoTitle = '诗歌讲解视频';
+                videoBadge = '<span class="bg-blue-500 text-white px-3 py-1 rounded-full text-xs font-semibold"><i class="fas fa-info-circle mr-1"></i>讲解</span>';
+            }
             
             // 设置视频源
             const videoSource = document.getElementById('videoSource');
             const videoElement = document.getElementById('poemVideo');
             const videoContainer = document.getElementById('videoPlayerContainer');
             
+            // 更新视频标题和标签
+            document.getElementById('videoTypeTitle').textContent = videoTitle;
+            document.getElementById('videoTypeBadge').innerHTML = videoBadge;
+            
             videoSource.src = videoPath;
             videoElement.load();
             
-            // 添加视频事件监听器
+            // 启用多模态视频追踪
+            if (multimodalTracker) {
+                multimodalTracker.trackVideoEngagement(videoElement, type);
+                console.log('📹 多模态视频追踪已启用:', type);
+            }
+            
+            // 添加视频事件监听器（保留原有追踪）
             if (!videoElement.dataset.trackingEnabled) {
                 videoElement.addEventListener('play', () => trackVideoPlay(videoElement));
                 videoElement.addEventListener('pause', () => trackVideoPause(videoElement));
@@ -2042,7 +2070,9 @@
             
             // 视频加载错误处理
             videoElement.onerror = function() {
-                alert(`未找到《${currentPoem.title}》的视频文件\n\n视频路径: ${videoPath}\n\n请确保视频文件已上传到 static/videos/ 目录`);
+                const folderName = type === 'pro' ? 'videos pro' : 'videos';
+                const videoTypeName = type === 'pro' ? '意象视频' : '讲解视频';
+                alert(`未找到《${currentPoem.title}》的${videoTypeName}\n\n视频路径: ${videoPath}\n\n请确保视频文件已上传到 static/${folderName}/ 目录`);
                 videoContainer.style.display = 'none';
             };
             
@@ -2090,13 +2120,13 @@
             }
             
             try {
-                const response = await fetch(`${API_BASE}/learning/complete`, {
+                const response = await fetch(`${API_BASE}/learning/records/${poemId}/complete`, {
                     method: 'POST',
                     headers: {
                         'Authorization': `Bearer ${authToken}`,
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ poem_id: poemId })
+                    body: JSON.stringify({ completion_rate: 1.0 })
                 });
                 
                 if (response.ok) {
@@ -2148,6 +2178,9 @@
             messagesDiv.scrollTop = messagesDiv.scrollHeight;
             
             try {
+                // 记录开始时间（用于计算响应时间）
+                const startTime = Date.now();
+                
                 // 获取用户设置
                 const hskLevel = document.getElementById('hskLevel').value || 'HSK3';
                 const userLanguage = document.getElementById('userLanguage').value || 'en';
@@ -2183,10 +2216,28 @@
                 }
                 
                 if (response.ok && data.success) {
+                    // 计算响应时间
+                    const responseTime = Date.now() - startTime;
+                    
                     // 添加AI回答 - 使用新格式
                     addAIAnswer(data);
                     
-                    // 追踪AI交互
+                    // 多模态追踪 - AI 问答
+                    if (multimodalTracker) {
+                        multimodalTracker.trackAIQuestion(
+                            question,
+                            data.answer || '',
+                            responseTime,
+                            {
+                                questionType: type,
+                                hskLevel: hskLevel,
+                                userLanguage: userLanguage
+                            }
+                        );
+                        console.log('🤖 多模态AI问答追踪已记录');
+                    }
+                    
+                    // 追踪AI交互（保留原有追踪）
                     trackEvent('ai_question', type, {
                         question: question,
                         questionType: type,
@@ -2574,6 +2625,12 @@
             audioPlayer.src = audioPath;
             audioPlayer.style.display = 'block';
             
+            // 启用多模态音频追踪
+            if (multimodalTracker) {
+                multimodalTracker.trackAudioEngagement(audioPlayer, 'tts');
+                console.log('🔊 多模态音频追踪已启用');
+            }
+            
             // 播放音频
             audioPlayer.play().then(() => {
                 console.log('🔊 播放音频:', audioFileName);
@@ -2709,7 +2766,22 @@
                     const data = await response.json();
                     displayPronunciationResult(data);
                     
-                    // 追踪评估完成事件
+                    // 多模态追踪 - 发音练习
+                    if (multimodalTracker) {
+                        multimodalTracker.trackPronunciation(
+                            {
+                                overall: data.overall_score || 0,
+                                accuracy: data.accuracy_score || data.overall_score || 0,
+                                fluency: data.fluency_score || data.overall_score || 0,
+                                intonation: data.intonation_score || data.overall_score || 0,
+                                words: data.word_scores || []
+                            },
+                            audioBlob.size / 16000  // 估算录音时长（假设16kHz采样率）
+                        );
+                        console.log('🎤 多模态发音追踪已记录');
+                    }
+                    
+                    // 追踪评估完成事件（保留原有追踪）
                     trackEvent('pronunciation_assessed', 'pronunciation_practice', {
                         poem_id: poemId,
                         overall_score: data.overall_score
@@ -2829,6 +2901,90 @@
                     </div>
                 </div>
             `;
+        }
+    </script>
+    
+    <!-- 多模态数据收集 SDK -->
+    <script>
+        // 测试：直接在这里输出，确保代码执行
+        console.log('🧪 内联脚本测试 - 这条消息应该立即显示');
+        console.log('📍 当前时间:', new Date().toISOString());
+    </script>
+    <script src="/static/js/multimodal_tracker.js?v=20260318" onerror="console.error('❌ 无法加载 multimodal_tracker.js')"></script>
+    <script>
+        // 立即检查脚本是否加载
+        console.log('🔍 检查 MultimodalTracker 类:', typeof MultimodalTracker);
+        
+        // 如果未加载，尝试直接访问文件
+        if (typeof MultimodalTracker === 'undefined') {
+            console.error('❌ MultimodalTracker 未定义');
+            console.log('📂 尝试的路径: /static/js/multimodal_tracker.js');
+            console.log('💡 请检查浏览器 Network 标签页查看文件是否 404');
+        } else {
+            console.log('✅ MultimodalTracker 已加载');
+        }
+    </script>
+    <script>
+        // 初始化多模态追踪器
+        let multimodalTracker = null;
+        
+        // 初始化函数
+        function initMultimodalTracker() {
+            try {
+                console.log('🔧 开始初始化多模态追踪器...');
+                
+                // 检查 MultimodalTracker 类是否存在
+                if (typeof MultimodalTracker === 'undefined') {
+                    console.error('❌ MultimodalTracker 类未定义，请检查 multimodal_tracker.js 是否正确加载');
+                    return;
+                }
+                
+                // 初始化追踪器
+                multimodalTracker = new MultimodalTracker({
+                    batchSize: 20,           // 每20个事件批量上报（优化性能）
+                    flushInterval: 10000,    // 每10秒自动上报一次（优化性能）
+                    endpoint: '/api/tracking/multimodal',
+                    debug: false             // 生产环境关闭调试
+                });
+                
+                console.log('✅ MultimodalTracker 实例已创建');
+                
+                // 获取诗歌ID（从URL路径中获取，如 /poem/1）
+                const pathParts = window.location.pathname.split('/');
+                const poemId = pathParts[pathParts.length - 1];
+                console.log('📖 诗歌ID:', poemId);
+                console.log('👤 当前用户:', currentUser);
+                
+                // 设置用户和诗歌上下文
+                const userId = currentUser?.user?.id || currentUser?.id;
+                if (userId && poemId) {
+                    multimodalTracker.setContext(userId, parseInt(poemId));
+                    console.log('✅ 多模态追踪已启动 - User:', userId, 'Poem:', poemId);
+                } else {
+                    console.warn('⚠️ 无法设置追踪上下文 - currentUser:', currentUser, 'poemId:', poemId);
+                    // 即使没有用户信息，也保持追踪器可用
+                    if (poemId) {
+                        multimodalTracker.poemId = parseInt(poemId);
+                        console.log('📝 已设置诗歌ID:', poemId);
+                    }
+                }
+            } catch (error) {
+                console.error('❌ 多模态追踪初始化失败:', error);
+                console.error('错误堆栈:', error.stack);
+            }
+        }
+        
+        // 在页面加载完成后初始化
+        window.addEventListener('load', function() {
+            // 延迟初始化，确保 currentUser 已加载
+            setTimeout(initMultimodalTracker, 500);
+        });
+        
+        // 也在 DOMContentLoaded 时尝试初始化（备用）
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', function() {
+                setTimeout(initMultimodalTracker, 1000);
+            });
         }
     </script>
 </body>

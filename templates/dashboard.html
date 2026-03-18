@@ -111,6 +111,62 @@
             </div>
         </div>
 
+        <!-- 学习报告 -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-6 gap-4">
+                <div>
+                    <h3 class="text-lg font-bold">学习行为分析报告</h3>
+                    <p class="text-sm text-gray-500 mt-1">基于最近完整学习会话生成的学习画像与建议</p>
+                </div>
+                <div id="reportTags" class="flex flex-wrap gap-2"></div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+                <div class="lg:col-span-1 bg-slate-50 border border-slate-200 rounded-xl p-4">
+                    <h4 class="font-semibold mb-3">学习能力雷达图</h4>
+                    <div class="h-72">
+                        <canvas id="learningRadarChart"></canvas>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-3">从参与度、专注度、连续性和输出能力四个维度评估你的当前学习状态。</p>
+                </div>
+                <div class="lg:col-span-2">
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                        <div class="rounded-xl bg-blue-50 p-4 border border-blue-100">
+                            <p class="text-sm text-gray-500">学习风格</p>
+                            <p id="studyStyle" class="text-xl font-bold text-blue-700 mt-1">待生成</p>
+                        </div>
+                        <div class="rounded-xl bg-emerald-50 p-4 border border-emerald-100">
+                            <p class="text-sm text-gray-500">参与度评分</p>
+                            <p id="engagementScore" class="text-xl font-bold text-emerald-700 mt-1">0</p>
+                        </div>
+                        <div class="rounded-xl bg-amber-50 p-4 border border-amber-100">
+                            <p class="text-sm text-gray-500">专注度评分</p>
+                            <p id="focusScore" class="text-xl font-bold text-amber-700 mt-1">0</p>
+                        </div>
+                        <div class="rounded-xl bg-purple-50 p-4 border border-purple-100">
+                            <p class="text-sm text-gray-500">偏好模态</p>
+                            <p id="preferredModality" class="text-xl font-bold text-purple-700 mt-1">待识别</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="lg:col-span-1 rounded-xl border border-gray-200 p-4 bg-gray-50">
+                    <h4 class="font-semibold mb-3">最近一次完整学习</h4>
+                    <div id="recentReport" class="space-y-2 text-sm text-gray-700"></div>
+                </div>
+                <div class="lg:col-span-1 rounded-xl border border-green-200 p-4 bg-green-50">
+                    <h4 class="font-semibold mb-3 text-green-800">你的优势</h4>
+                    <div id="reportStrengths" class="space-y-2 text-sm text-green-900"></div>
+                </div>
+                <div class="lg:col-span-1 rounded-xl border border-orange-200 p-4 bg-orange-50">
+                    <h4 class="font-semibold mb-3 text-orange-800">个性化建议</h4>
+                    <div id="reportSuggestions" class="space-y-2 text-sm text-orange-900"></div>
+                </div>
+            </div>
+        </div>
+
         <!-- 最近活动 -->
         <div class="bg-white rounded-lg shadow-lg p-6">
             <h3 class="text-lg font-bold mb-4">最近学习活动</h3>
@@ -132,6 +188,7 @@
         // 全局变量
         let authToken = localStorage.getItem('authToken');
         const API_BASE = '/api';
+        let learningRadarChart = null;
 
         // 初始化
         document.addEventListener('DOMContentLoaded', function() {
@@ -189,6 +246,16 @@
                     updateAchievements(achievementsData.achievements);
                 }
 
+                // 加载学习行为报告
+                const reportResponse = await fetch(`${API_BASE}/dashboard/learning-report`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+
+                if (reportResponse.ok) {
+                    const reportData = await reportResponse.json();
+                    updateLearningReport(reportData);
+                }
+
                 // 加载推荐
                 const recommendationsResponse = await fetch(`${API_BASE}/dashboard/recommendations`, {
                     headers: { 'Authorization': `Bearer ${authToken}` }
@@ -211,6 +278,125 @@
             document.getElementById('studyTime').textContent = `${data.statistics.total_study_time_minutes}分钟`;
             document.getElementById('accuracy').textContent = `${data.statistics.exercise_accuracy.toFixed(1)}%`;
             document.getElementById('totalQuestions').textContent = data.statistics.total_questions;
+        }
+
+        function updateLearningReport(report) {
+            const summary = report.summary || {};
+            const metrics = report.metrics || {};
+            const radar = report.radar || {};
+            const recentReport = report.recent_report;
+
+            document.getElementById('studyStyle').textContent = summary.study_style || '待生成';
+            document.getElementById('engagementScore').textContent = `${summary.engagement_score || 0}`;
+            document.getElementById('focusScore').textContent = `${summary.focus_score || 0}`;
+            document.getElementById('preferredModality').textContent = summary.preferred_modality || '待识别';
+            renderLearningRadarChart(radar);
+
+            const reportTags = document.getElementById('reportTags');
+            reportTags.innerHTML = '';
+            [
+                `近10次完整学习: ${metrics.completed_sessions || 0}次`,
+                `平均时长: ${metrics.average_session_minutes || 0}分钟`,
+                `AI互动: ${metrics.average_ai_interactions || 0}次/次学习`,
+                `视频完成率: ${metrics.average_video_completion || 0}%`,
+                `学习连续性: ${summary.consistency_score || 0}%`
+            ].forEach(tag => {
+                const span = document.createElement('span');
+                span.className = 'px-3 py-1 rounded-full text-sm bg-gray-100 text-gray-700';
+                span.textContent = tag;
+                reportTags.appendChild(span);
+            });
+
+            const recentReportDiv = document.getElementById('recentReport');
+            if (!recentReport) {
+                recentReportDiv.innerHTML = '<p class="text-gray-500">暂无完整学习数据</p>';
+            } else {
+                recentReportDiv.innerHTML = `
+                    <p><span class="text-gray-500">最近学习诗歌：</span><span class="font-medium">《${recentReport.poem_title}》</span></p>
+                    <p><span class="text-gray-500">学习时长：</span>${recentReport.duration_seconds || 0}秒</p>
+                    <p><span class="text-gray-500">完成质量：</span>${recentReport.completion_quality || 0}%</p>
+                `;
+            }
+
+            renderTextList('reportStrengths', report.strengths, 'text-green-900');
+            renderTextList('reportSuggestions', report.suggestions, 'text-orange-900');
+        }
+
+        function renderLearningRadarChart(radar) {
+            const canvas = document.getElementById('learningRadarChart');
+            if (!canvas) {
+                return;
+            }
+
+            const dataPoints = [
+                radar.engagement || 0,
+                radar.focus || 0,
+                radar.consistency || 0,
+                radar.expression || 0
+            ];
+
+            if (learningRadarChart) {
+                learningRadarChart.destroy();
+            }
+
+            learningRadarChart = new Chart(canvas.getContext('2d'), {
+                type: 'radar',
+                data: {
+                    labels: ['参与度', '专注度', '连续性', '输出能力'],
+                    datasets: [{
+                        label: '学习能力画像',
+                        data: dataPoints,
+                        borderColor: 'rgb(79, 70, 229)',
+                        backgroundColor: 'rgba(99, 102, 241, 0.18)',
+                        pointBackgroundColor: 'rgb(79, 70, 229)',
+                        pointBorderColor: '#fff',
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: 'rgb(79, 70, 229)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            beginAtZero: true,
+                            min: 0,
+                            max: 100,
+                            ticks: {
+                                stepSize: 20,
+                                backdropColor: 'transparent'
+                            },
+                            pointLabels: {
+                                font: {
+                                    size: 13
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderTextList(targetId, items, textClass) {
+            const container = document.getElementById(targetId);
+            container.innerHTML = '';
+
+            if (!items || items.length === 0) {
+                container.innerHTML = '<p class="text-gray-500">暂无数据</p>';
+                return;
+            }
+
+            items.forEach(item => {
+                const row = document.createElement('div');
+                row.className = `flex items-start gap-2 ${textClass}`;
+                row.innerHTML = `<span class="mt-1 text-xs">●</span><span>${item}</span>`;
+                container.appendChild(row);
+            });
         }
 
         // 创建学习趋势图
@@ -391,21 +577,33 @@
             
             recommendations.forEach(rec => {
                 const recDiv = document.createElement('div');
-                recDiv.className = 'bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer';
-                
-                recDiv.innerHTML = `
-                    <h4 class="font-bold text-lg mb-2">${rec.poem.title}</h4>
-                    <p class="text-gray-600 mb-2">${rec.poem.author} · ${rec.poem.dynasty}</p>
-                    <p class="text-sm text-blue-600 mb-3">${rec.reason}</p>
-                    <div class="flex justify-between items-center">
-                        <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
-                            难度${rec.poem.difficulty_level}
-                        </span>
-                        <button onclick="goToPoem(${rec.poem.id})" class="text-blue-600 hover:text-blue-800 text-sm font-medium">
-                            开始学习 →
-                        </button>
-                    </div>
-                `;
+                recDiv.className = 'bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-4 hover:shadow-md transition-shadow';
+
+                if (!rec.poem) {
+                    recDiv.innerHTML = `
+                        <div class="flex items-center justify-between mb-2">
+                            <h4 class="font-bold text-lg">${rec.title || '学习建议'}</h4>
+                            <span class="text-xs bg-indigo-100 text-indigo-800 px-2 py-1 rounded">策略</span>
+                        </div>
+                        <p class="text-sm text-blue-600 mb-2">${rec.reason || ''}</p>
+                        <p class="text-sm text-gray-700">${rec.description || ''}</p>
+                    `;
+                } else {
+                    recDiv.classList.add('cursor-pointer');
+                    recDiv.innerHTML = `
+                        <h4 class="font-bold text-lg mb-2">${rec.poem.title}</h4>
+                        <p class="text-gray-600 mb-2">${rec.poem.author} · ${rec.poem.dynasty}</p>
+                        <p class="text-sm text-blue-600 mb-3">${rec.reason}</p>
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
+                                难度${rec.poem.difficulty_level}
+                            </span>
+                            <button onclick="goToPoem(${rec.poem.id})" class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                                开始学习 →
+                            </button>
+                        </div>
+                    `;
+                }
                 
                 recommendationsDiv.appendChild(recDiv);
             });

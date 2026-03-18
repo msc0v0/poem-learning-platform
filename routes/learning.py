@@ -93,6 +93,8 @@ def complete_poem_learning(poem_id):
         if not record:
             return jsonify({'error': 'Learning record not found'}), 404
         
+        was_completed = record.is_completed
+
         # 更新完成状态
         record.is_completed = True
         record.completion_rate = data.get('completion_rate', 1.0)
@@ -100,7 +102,7 @@ def complete_poem_learning(poem_id):
         
         # 更新用户统计数据
         user = User.query.get(user_id)
-        if user and not record.is_completed:  # 避免重复计算
+        if user and not was_completed:  # 避免重复计算
             user.poems_studied += 1
         
         db.session.commit()
