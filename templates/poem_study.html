@@ -708,6 +708,24 @@
                     <div id="poemContentEnglish" class="text-xl leading-relaxed hidden text-gray-700" style="font-family: 'Georgia', serif; font-style: italic;">
                         🔄 Loading English translation...
                     </div>
+                    
+                    <!-- 双语对照版本（默认隐藏） -->
+                    <div id="poemContentBilingual" class="hidden">
+                        <div class="grid grid-cols-2 gap-8">
+                            <!-- 左侧：中文版 -->
+                            <div class="border-r-2 border-gray-200 pr-6">
+                                <div class="text-sm text-gray-500 mb-3 font-semibold">中文 Chinese</div>
+                                <div id="poemContentChineseCopy" class="text-2xl leading-loose font-serif text-gray-800" style="font-family: 'KaiTi', '楷体', serif;">
+                                </div>
+                            </div>
+                            <!-- 右侧：英文版 -->
+                            <div class="pl-6">
+                                <div class="text-sm text-gray-500 mb-3 font-semibold">English Translation</div>
+                                <div id="poemContentEnglishCopy" class="text-xl leading-relaxed text-gray-700" style="font-family: 'Georgia', serif; font-style: italic;">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 
                 <!-- 朗读与跟读按钮区域 -->
@@ -887,6 +905,7 @@
                             <option value="de">Deutsch</option>
                             <option value="ja">日本語</option>
                             <option value="ko">한국어</option>
+                            <option value="ru">Русский</option>
                         </select>
                     </div>
                 </div>
@@ -1858,6 +1877,7 @@
             document.getElementById('poemContentChinese').classList.add('hidden');
             document.getElementById('poemContentPinyin').classList.add('hidden');
             document.getElementById('poemContentEnglish').classList.add('hidden');
+            document.getElementById('poemContentBilingual').classList.add('hidden');
             
             // 更新按钮状态
             document.getElementById('btnChinese').classList.remove('active');
@@ -1871,9 +1891,16 @@
             } else if (mode === 'pinyin') {
                 document.getElementById('poemContentPinyin').classList.remove('hidden');
                 document.getElementById('btnPinyin').classList.add('active');
-            } else if ( mode === 'english') {
-                document.getElementById('poemContentEnglish').classList.remove('hidden');
+            } else if (mode === 'english') {
+                // 英文模式：显示双语对照
+                document.getElementById('poemContentBilingual').classList.remove('hidden');
                 document.getElementById('btnEnglish').classList.add('active');
+                
+                // 同步中文和英文内容到双语对照区域
+                const chineseContent = document.getElementById('poemContentChinese').innerHTML;
+                const englishContent = document.getElementById('poemContentEnglish').innerHTML;
+                document.getElementById('poemContentChineseCopy').innerHTML = chineseContent;
+                document.getElementById('poemContentEnglishCopy').innerHTML = englishContent;
             }
             
             // 保存用户偏好
@@ -2292,7 +2319,8 @@
                 'fr': 'Français',
                 'de': 'Deutsch',
                 'ja': '日本語',
-                'ko': '한국어'
+                'ko': '한국어',
+                'ru': 'Русский'
             };
             
             const messageDiv = document.createElement('div');
